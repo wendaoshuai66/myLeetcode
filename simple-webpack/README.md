@@ -12,7 +12,7 @@
 ### Compiler
 Compiler： webpack 的运行入口，Compiler 代表了webpack 完整的环境配置，包块entry，loader， plugin; Compiler 通过注入的方式到plugin 的apply，当插件收到时可以访问webpack 主环境
 
-###Compilation
+### Compilation
 
 Compilation: 代表一次资源的构建，当运行webpack 开发环境，就会生成新的 Compilation， 从而生成一组新的编译资源
 
