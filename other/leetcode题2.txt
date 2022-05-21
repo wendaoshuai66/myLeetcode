@@ -1,0 +1,1471 @@
+第一、 Two Sum 两数之和
+  
+   方法一
+     思路：先对数组进行排序，在通过一次遍历就可以找到，复杂度为O(nlogn)
+      class Solution {
+        public:
+             vector<int> twoSum(vector<int>& nums, int target) {
+                vector<int> result;
+                int begin = 0;
+                int end = nums.size - 1;
+                while(begin < nums.size && end > 0) {
+                    if(nums[begin] + nums[end] == target) {
+                        result.push.back(nums[begin]);
+                        result.push.back(nums[end]);
+                        return result;
+                    } else if (nums[begin] + nums[end] < target) {
+                       begin++;
+                    } else {
+                      end--; 
+                    }
+                }
+                return result;
+             }
+        };
+   
+   方法二  假设数组没有重复元素
+
+     思路：哈希表,哈希表的查找时间复杂度为O(n)
+       std::vector<int> twoSum(std::vector<int>& nums, int target) {
+           std::map<int, int> m;
+           std::vector<int> res;
+           for (int i = 0; i < nums.size(); ++i) {
+                  m[nums[i]] = i;
+               }
+           for (int i = 0; i < nums.size(); ++i) {
+              int t = target - nums[i];
+              if (m.count(t) && m[t] != i) { //map的cout()方法返回一个整数，1表示有这个元素，0表示没有
+                 res.push_back(i);
+                 res.push_back(m[t]);
+                 break;
+                }
+            }
+            return res;
+          }
+    
+第二、 Add Two Numbers 两个数字相加
+      
+      思路： 将两条链表的对应值都加起来
+      注意： 节点值大于10时候需要进位      
+
+    class Solution {
+       public:
+          ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+               ListNode *dummy = new ListNode(-1), *cur = dummy;
+               int carry = 0;
+               while (l1 || l2) {
+                   
+                   int val1 = l1 ? l1->val : 0;
+                   int val2 = l2 ? l2->val : 0;
+                   int sum = val1 + val2 + carry;
+                   carry = sum / 10;
+                   cur->next = new ListNode(sum % 10);
+                   cur = cur->next;
+                   if (l1) l1 = l1->next;
+                   if (l2) l2 = l2->next;
+                }
+                if (carry) cur->next = new ListNode(1);
+                return dummy->next;
+              }
+          };
+
+第三、Longest Substring Without Repeating Characters 最长无重复字符的子串
+     
+     思路1:
+          从下标0开始，依次查找以当前下标开始的最长不重复子序列
+          https://www.cnblogs.com/zhaogl/p/6364654.html
+
+     int GetMaxLength(string& sTemp, int startIndex) {
+           map<char, int> mapChar;
+           int max = 0;
+           for (int i = startIndex; i < sTemp.length(); ++i) {
+           if (mapChar.find(sTemp[i]) != mapChar.end()) //说明找到相同的key
+              return max;
+            mapChar[sTemp[i]] = i;
+            ++max;
+           }
+            return max;
+        }
+
+     int lengthOfLongestSubstring(string s) {
+         int max = 0;
+         for (int i = 0; i < s.length(); ++i) {
+            int temp = GetMaxLength(s, i);
+            if (temp > max)
+            max = temp;
+          }
+          return max;
+        }
+    
+    思路2: 当出现重复字符串时，抛弃重复出现的字符串前一次出现的位置，把新的子串开始位置设置为原来出现字符串的位置，最后得出最长的子串长度。
+
+       int lengthOfLongestSubstring1(std::string s) {
+
+          std::vector<int> m(256, -1);
+          int maxlen = 0, left = -1;
+          for (int i = 0; i < s.size(); ++i) {
+            if (m[s[i]] > left) {
+              left = m[s[i]];
+             }
+             m[s[i]] = i;
+             maxlen = max_ab(maxlen, i - left);
+          }
+          return maxlen;
+        }
+
+第四、Median of Two Sorted Arrays    两个有序数组中的中位数
+
+   https://www.cnblogs.com/grandyang/p/4465932.html
+    思路：二分法
+
+     我们分别找第 (m+n+1) / 2 个，和 (m+n+2) / 2 个，然后求其平均值即可，这对奇偶数均适用
+
+   class Solution {
+public:
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        int m = nums1.size(), n = nums2.size(), left = (m + n + 1) / 2, right = (m + n + 2) / 2;
+        return (findKth(nums1, 0, nums2, 0, left) + findKth(nums1, 0, nums2, 0, right)) / 2.0;
+    }
+    int findKth(vector<int>& nums1, int i, vector<int>& nums2, int j, int k) {
+        
+        if (i >= nums1.size()) return nums2[j + k - 1];
+        if (j >= nums2.size()) return nums1[i + k - 1];
+        
+        if (k == 1) return min(nums1[i], nums2[j]);
+        int midVal1 = (i + k / 2 - 1 < nums1.size()) ? nums1[i + k / 2 - 1] : INT_MAX;
+        int midVal2 = (j + k / 2 - 1 < nums2.size()) ? nums2[j + k / 2 - 1] : INT_MAX;
+        if (midVal1 < midVal2) {
+            return findKth(nums1, i + k / 2, nums2, j, k - k / 2);
+        } else {
+            return findKth(nums1, i, nums2, j + k / 2, k - k / 2);
+        }
+    }
+};
+
+
+  解法二：按照归并排序的思路，先归并，再找中间值，O(m+n)复杂度
+
+   class Solution {
+public:
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        int m = nums1.size();
+        int n = nums2.size();
+        vector<int> array = merge(nums1, nums2);
+
+        if(array.size % 2 == 0)
+            return (double)(array[array.size / 2] + array[array.size / 2 -1]) / 2;
+        else
+            return array[array.size / 2];
+    }
+    vector<int> merge(vector<int> A, vector<int> B)
+    {
+        vector<int> ret;
+        int m = A.size();
+        int n = B.size();
+        int i = 0;
+        int j = 0;
+        while(i < m && j < n)
+        {
+            if(A[i] <= B[j])
+            {
+                ret.push_back(A[i]);
+                i ++;
+            }
+            else
+            {
+                ret.push_back(B[j]);
+                j ++;
+            }
+        }
+        if(i == m)
+        {
+            while(j < n)
+            {
+                ret.push_back(B[j]);
+                j ++;
+            }
+        }
+        if(j == n)
+        {
+            while(i < m)
+            {
+                ret.push_back(A[i]);
+                i ++;
+            }
+        }
+        return ret;
+    }
+};
+
+
+
+第五、Longest Palindromic Substring 最长回文子串
+
+
+解法一：就要以每一个字符为中心，像两边扩散来寻找回文串，这个算法的时间复杂度是O(n*n)
+
+复制代码
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        if (s.size() < 2) return s;
+        int n = s.size(), maxLen = 0, start = 0;
+        for (int i = 0; i < n - 1; ++i) {
+            searchPalindrome(s, i, i, start, maxLen);
+            searchPalindrome(s, i, i + 1, start, maxLen);
+        }
+        return s.substr(start, maxLen);
+    }
+    void searchPalindrome(string s, int left, int right, int& start, int& maxLen) {
+        while (left >= 0 && right < s.size() && s[left] == s[right]) {
+            --left; ++right;
+        }
+        if (maxLen < right - left - 1) {
+            start = left + 1;
+            maxLen = right - left - 1;
+        }
+    }
+};
+
+
+解法二：以某个元素为中心，分别计算偶数长度的回文最大长度和奇数长度的回文最大长度。时间复杂度O(n^2)，空间O（1
+
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        const int len = s.size();
+        if(len <= 1)return s;
+        int start, maxLen = 0;
+        for(int i = 1; i < len; i++)
+        {
+            //寻找以i-1,i为中点偶数长度的回文
+            int low = i-1, high = i;
+            while(low >= 0 && high < len && s[low] == s[high])
+            {
+                low--;
+                high++;
+            }
+            if(high - low - 1 > maxLen)
+            {
+                maxLen = high - low -1;
+                start = low + 1;
+            }
+             
+            //寻找以i为中心的奇数长度的回文
+            low = i- 1; high = i + 1;
+            while(low >= 0 && high < len && s[low] == s[high])
+            {
+                low--;
+                high++;
+            }
+            if(high - low - 1 > maxLen)
+            {
+                maxLen = high - low -1;
+                start = low + 1;
+            }
+        }
+        return s.substr(start, maxLen);
+    }
+};
+
+
+第六、Regular Expression Matching     正则字符串匹配  
+    https://www.cnblogs.com/LUO77/p/5380442.html
+   思路：
+      分析：递归实现
+    每次分别在str 和pattern中取一个字符进行匹配，如果匹配，则匹配下一个字符，否则，返回不匹配。
+    设匹配递归函数 match(str, pattern)。
+    
+      如果模式匹配字符的下一个字符是‘*’:
+     •如果pttern当前字符和str的当前字符匹配，：有以下可能情况
+    （1）pttern当前字符能匹配 str 中的 0 个字符：match(str, pattern+2)
+    （2）pttern当前字符能匹配 str 中的 当前 字符：match(str+1, pattern)
+     •如果pttern当前字符和和str的当前字符不匹配pttern当前字符能匹配 str 中的 0 个字符：(str, pattern+2)
+     如果模式匹配字符的下一个字符不是‘*’，进行逐字符匹配。
+     对于 ‘.’ 的情况比较简单，’.’ 和一个字符匹配 match(str+1, pattern+1)
+     另外需要注意的是：空字符串”” 和 “.*” 是匹配的
+     
+     
+bool matchFunc(char* s, char *p)      
+{
+    if((*s == '\0') && (*p == '\0')) // 匹配字符串和匹配模式都为空
+        return true;
+
+    if((*s != '\0') && (*p == '\0')) // 匹配字符串不为空，匹配模式为空
+        return false;
+
+    if(*(p + 1) == '*')
+    {
+        if((*p == *s) || ((*p == '.') && (*s != '\0')))
+        {
+            return matchFunc(s + 1, p + 2) || matchFunc(s + 1, p) || matchFunc(s, p + 2);
+        }
+        else
+        {
+            return matchFunc(s, p + 2);
+        }
+    }
+
+    if((*s == *p) || ((*p == '.') && (*s != '\0')))
+        return matchFunc(s + 1, p + 1);
+
+    return false;
+}
+
+bool isMatch(char* s, char* p){
+    if((s == NULL) || (p == NULL)) // 若指向匹配字符串或匹配模式的为空指针，则返回false
+        return false;
+
+    return matchFunc(s, p);
+}
+
+第七、Container With Most Water 装最多水的容器（取容器最短的边计算能装多少水）
+     
+     给定n个非负整数a1，a2，...，an，其中每个代表坐标（i，ai）处的一个点。 绘制n条垂直线，使得线i的两个端点处于（i，ai）和（i，0）处。 找到两条线，它们与x轴一起形成一个容器，以使容器包含最多的水
+     思路：
+     贪心算法：从两边开始向中间缩小;每一步比较左右边界高度,高度小的那个向里走一步
+
+    class Solution {
+public:
+    int maxArea(vector<int>& height) {
+        int res = 0, i = 0, j = height.size() - 1;
+        while (i < j) {
+            int h = min(height[i], height[j]);
+            res = max(res, h * (j - i));
+            while (i < j && h == height[i])
+                 ++i;
+            while (i < j && h == height[j])
+                --j;
+        }
+        return res;
+    }
+};
+
+第八、3Sum 三数之和
+
+       找出三个数且和为0
+
+     思路：先对数组排序，先定一个数字，后面两个在确定根据和序列递增或者递减
+
+    vector<vector<int>> threeSum(vector<int>& nums) {
+
+          vector<vector<int>> res;
+          std::sort(nums.begin(), nums.end());
+          map<string, vector<int>> key_res;
+          for (int i = 0 ; i < (int)nums.size(); i++) {
+              // star 剪枝优化
+             if (i >= 1) {
+                 while (nums[i] == nums[i-1]) {
+                 i++;
+                 continue;
+              }
+          }
+           //end 剪枝优化
+          int l = i+1;
+          int r = (int)nums.size()-1;
+
+          while (l < r) {
+            if (nums[l] + nums[r] > -nums[i]) {
+                r--;
+                continue;
+            }
+            else if (nums[l] + nums[r] < -nums[i]){
+                l++;
+            }else{
+                string k = to_string(nums[i]) + "," + to_string(nums[l]) + "," + to_string(nums[r]);
+                vector<int> tmp = {nums[i], nums[l] , nums[r]};
+                key_res[k] = tmp;
+                
+                l++;
+                r--;
+            }
+        }
+    }
+    map<string, vector<int>>::iterator m_iter;
+    for (m_iter = key_res.begin(); m_iter != key_res.end(); m_iter++) {
+        res.push_back(m_iter->second);
+    }
+    
+    return res;
+}
+
+第九、Letter Combinations of a Phone Number 电话号码的字母组合
+    题意：
+    Input:Digit string "23"   ；   "abc", "def"
+
+    Output: ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
+
+     https://www.cnblogs.com/grandyang/p/4452220.html
+     思路：
+         这道题让我们求电话号码的字母组合
+        我们用递归Recursion来解，我们需要建立一个字典，用来保存每个数字所代表的字符串，然后我们还需要一个变量level，记录当前生成的字符串的字符个数，实现套路和上述那些题十分类似。
+        在递归函数中我们首先判断level，如果跟digits中数字的个数相等了，我们将当前的组合加入结果res中，然后返回。否则我们通过digits中的数字到dict中取出字符串，然后遍历这个取出的字符串，将每个字符都加到当前的组合后面，并调用递归函数即可
+
+    class Solution {
+public:
+    vector<string> letterCombinations(string digits) {
+        if (digits.empty()) return {};
+        vector<string> res;
+        string dict[] = {"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+        letterCombinationsDFS(digits, dict, 0, "", res);
+        return res;
+    }
+    void letterCombinationsDFS(string digits, string dict[], int level, string out, vector<string> &res) {
+        if (level == digits.size()) {
+           res.push_back(out); 
+           return;
+        }
+        string str = dict[digits[level] - '0'];
+        for (int i = 0; i < str.size(); ++i) {
+            letterCombinationsDFS(digits, dict, level + 1, out + string(1, str[i]), res);
+        }
+    }
+};
+
+第十、Remove Nth Node From End of List 移除链表倒数第N个节点
+
+class Solution {
+public:
+    ListNode *removeNthFromEnd(ListNode *head, int k) {
+        if (!head) {
+            return NULL;
+        }
+        ListNode*p = head;
+        ListNode*p1 = head;
+        ListNode*pre = NULL;
+        for (int i =0; i<(k-1); i++) {
+            if (p) {
+                p = p->next;
+            }
+        }
+        if (!p) {
+            return head;
+        }
+        while (p && p->next) {
+            p = p->next;
+            pre = p1;
+            p1=p1->next;
+        }
+        pre->next = p1->next;
+        return head;
+    }
+};
+
+第十一、ValidParentheses 验证括号
+    思路：这道题让我们验证输入的字符串是否为括号字符串，包括大括号，中括号和小括号。
+    这里我们需要用一个栈，我们开始遍历输入字符串
+
+   class Solution {
+public:
+    bool isValid(string s) {
+        stack<char> parentheses;
+        for (int i = 0; i < s.size(); ++i) {
+            if (s[i] == '(' || s[i] == '[' || s[i] == '{') parentheses.push(s[i]);
+            else {
+                if (parentheses.empty()) return false;
+                if (s[i] == ')' && parentheses.top() != '(') return false;
+                if (s[i] == ']' && parentheses.top() != '[') return false;
+                if (s[i] == '}' && parentheses.top() != '{') return false;
+                parentheses.pop();
+            }
+        }
+        return parentheses.empty();
+    }
+};
+
+第十二、Merge Two Sorted Lists 混合插入有序链表
+    思路一：
+    class Solution {
+public:
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        ListNode *dummy = new ListNode(-1), *cur = dummy;
+        while (l1 && l2) {
+            if (l1->val < l2->val) {
+                cur->next = l1;
+                l1 = l1->next;
+            } else {
+                cur->next = l2;
+                l2 = l2->next;
+            }
+            cur = cur->next;
+        }
+        cur->next = l1 ? l1 : l2;
+        return dummy->next;
+    }
+};
+  思路二、
+  class Solution {
+public:
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        if (!l1) return l2;
+        if (!l2) return l1;
+        if (l1->val < l2->val) {
+            l1->next = mergeTwoLists(l1->next, l2);
+            return l1;
+        } else {
+            l2->next = mergeTwoLists(l1, l2->next);
+            return l2;
+        }
+    }
+};
+
+第十三、generate parentheses 生成括号
+       这道题给定一个数字n，让生成共有n个括号的所有正确的形式，对于这种列出所有结果的题首先还是考虑用递归Recursion来解
+       
+       思路：合法的情况是，任意一时刻，左（“(”）括号数要大于等于右（")"）括号数
+         由于字符串只有左括号和右括号两种字符，而且最终结果必定是左括号3个，右括号3个，所以我们定义两个变量left和right分别表示剩余左右括号的个数，
+        如果在某次递归时，左括号的个数大于右括号的个数，说明此时生成的字符串中右括号的个数大于左括号的个数，即会出现')('这样的非法串，所以这种情况直接返回，不继续处理。
+
+        如果left和right都为0，则说明此时生成的字符串已有3个左括号和3个右括号，且字符串合法，则存入结果中后返回。
+
+        如果以上两种情况都不满足，若此时left大于0，则调用递归函数，注意参数的更新，若right大于0，则调用递归函数
+
+       class Solution {
+  public:
+      vector<string> generateParenthesis(int n)  {
+          vector<string> res;
+          generateDFS(n,n,"",res);
+          return res;    
+      }
+  
+    /*left、right分别是左右括号剩下的括号数*/
+
+     void generateDFS(int left,int right,string temp,vector<string> &res) {
+         if(left>right) return;
+         if(left==0&&right==0)  
+             res.push_back(temp);
+         else {
+             if(left>0)
+                generateDFS(left-1,right,temp+'(',res);
+             if(right>0)
+                 generateDFS(left,right-1,temp+')',res);
+        }
+     }
+     };
+
+第十四、 Merge k Sorted Lists 合并k个有序链表
+     思路： 分治法，合并的时间复杂度O(logN)，不用递归，空间复杂度O(1) 思想很简单，两两合并之后在两两合并
+       注意：代码中的k是通过 (n+1)/2 计算的，这里为啥要加1呢，这是为了当n为奇数的时候，k能始终从后半段开始，比如当n=5时，那么此时k=3，则0和3合并，1和4合并，最中间的2空出来
+      方法1:
+        class Solution {
+public:
+    ListNode* mergeKLists(vector<ListNode*>& lists) { 
+        if (lists.empty()) return NULL;
+        int n = lists.size();
+        while (n > 1) {
+            int k = (n + 1) / 2;
+            for (int i = 0; i < n / 2; ++i) {
+                lists[i] = mergeTwoLists(lists[i], lists[i + k]);
+            }
+            n = k;
+        }
+        return lists[0];
+    }
+
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        ListNode *dummy = new ListNode(-1), *cur = dummy;
+        while (l1 && l2) {
+            if (l1->val < l2->val) {
+                cur->next = l1;
+                l1 = l1->next;
+            } else {
+                cur->next = l2;
+                l2 = l2->next;
+            }
+            cur = cur->next;
+        }
+        if (l1) cur->next = l1;
+        if (l2) cur->next = l2;
+        return dummy->next;
+    }
+};
+    
+  方法2:  最小堆这种数据结构  
+
+  struct cmp {
+    bool operator() (ListNode *a,ListNode *b) {
+        return a->val > b->val;
+    }
+};
+
+ListNode *mergeKListNode(vector<ListNode *> &vec) {
+    priority_queue<ListNode*,vector<ListNode *>,cmp>heap;
+    for (int i = 0; i < vec.size(); i++) {
+        ListNode *node = vec[i];
+        while (node) {
+            heap.push(node);
+            node= node->next;
+        }
+    }
+    ListNode *head = new ListNode();
+    head->next = NULL;
+    head->val = -1;
+    ListNode *p = head;
+    while (!heap.empty()) {
+        ListNode *node = heap.top();
+        heap.pop();
+        p->next = node;
+        p = p->next;
+    }
+    return head->next;
+}
+
+
+第十五、Next Permutation 下一个排列     *****
+
+      https://blog.csdn.net/ouyangjinbin/article/details/51075024
+      思路：先确定从后往前的搜索方案，找到需要交换的位置，交换元素后，对后面进行升序排序
+      class Solution {
+      public:
+
+       void nextPermutation(vector<int> &num) {
+          int i, j, n = num.size();
+          for (i = n - 2; i >= 0; --i) {
+            if (num[i + 1] > num[i]) {
+                for (j = n - 1; j >= i; --j) {
+                    if (num[j] > num[i]) break;
+                }
+                swap(num[i], num[j]);
+                reverse(num.begin() + i + 1, num.end());
+                return;
+            }
+        }
+        reverse(num.begin(), num.end());
+    }
+};
+
+
+第十六、Longest Valid Parentheses 最长有效括号
+     https://www.cnblogs.com/sjjsh/p/4972336.html
+     思路1；这种方法就简单很多了，两个栈，一个用来压入左右括号，另一个压下标。看到左括号就压进去，看到右括号就进行判断
+     int longestValidParentheses(string s) {
+         int len=s.size();
+         int max=0;
+         stack<char> t1;
+         stack<int> t2 ;
+         for(int i=0;i<len;i++){
+            if(s[i]=='('){
+               t1.push('(');
+               t2.push(i);
+            }else{
+
+              if(t1.size()>0 && t1.top() == '('){
+                t1.pop();
+                t2.pop();
+                int tmp=t2.size()==0?i+1:i-t2.top();
+                max=max_ab(max, tmp);
+
+              }else{
+                t1.push(')');
+                t2.push(i);
+              }
+        }
+      }
+       return max;
+     }
+
+
+      思路2: 动态规划  
+        class Solution {
+public:
+    int longestValidParentheses(string s) 
+    {
+        int result=0;
+        s=')'+s;
+        vector<int> dp(s.length(),0);
+        for(int i=1;i<s.length();i++) {
+            if(s[i]==')') {
+                if(s[i-1-dp[i-1]]=='(')
+                 dp[i]=dp[i-1]+2;
+                 dp[i]+=dp[i-dp[i]];
+            }
+            result=max(result,dp[i]);
+        }
+        return result;
+    }
+   };
+
+第十七、Search in Rotated Sorted Array 在旋转有序数组中搜索
+   思路：二分搜索法的关键在于获得了中间数后，判断下面要搜索左半段还是右半段
+        如果中间的数小于最右边的数，则右半段是有序的，若中间数大于最右边数，则左半段是有序的，我们只要在有序的半段里用首尾两个数组来判断目标值是否在这一区域内，这样就可以确定保留哪半边了
+       
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        int left = 0, right = nums.size() - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] == target) return mid;
+            else if (nums[mid] < nums[right]) {
+                if (nums[mid] < target && nums[right] >= target) left = mid + 1;
+                else right = mid - 1;
+            } else {
+                if (nums[left] <= target && nums[mid] > target) right = mid - 1;
+                else left = mid + 1;
+            }
+        }
+        return -1;
+    }
+};
+
+第十八、Find First and Last Position of Element in Sorted Array    
+  思路：二分法
+  class Solution {
+    public int[] searchRange(int[] nums, int target) {
+        int[] res = {-1, -1};
+        if (nums == null || nums.length == 0) return res;
+        int start = 0, end = nums.length-1;
+        while (nums[start] < nums[end]) {                   //don't be equal
+            int mid = start + (end-start)/2;
+            if (nums[mid] < target) {
+                start = mid+1;
+            } else if (nums[mid] > target) {
+                end = mid-1;
+            } else {  
+                     //once nums[mid] == target:
+                     //move start to lower bound (first position)
+                      //move end to higher bound (last position)
+                start = mid;
+                end = mid;
+                while(start >= 0 && nums[start] == target) start--;
+                while(end < len  &&  nums[end] == target)  end++;
+                break;
+            }
+        }
+        
+        if (nums[start] == target && nums[end] == target) {
+            res[0] = start;
+            res[1] = end;
+        }
+        return res;
+    }
+}
+
+第十九、 Combination Sum 组合之和
+
+     给出一组候选数C 和一个目标数T，找出候选数中起来和等于T 的所有组合。
+     C中的每个数字在一个组合中只能使用一次
+        Input: candidates = [100,10,20,70,60,10,50], target = 80,
+        A solution set is:
+       [[10,10,60],[10,20,50],[10,70],[20,60]]
+
+void getCombinationsWithFixedValue(vector<int>&vec,int start,  int target,vector<int>path,set<vector<int>>&result) {
+    if (target < 0 || start > vec.size()) {
+        return;
+    }
+    if (target == 0) { //删除重复的
+        if (result.find(path) == result.end()) {
+            result.insert(path);
+        }
+    }
+    for (int i = start; i <vec.size(); i++) {
+        path.push_back(vec[i]);
+        getCombinationsWithFixedValue(vec, i+1, target - vec[i], path, result);
+        path.pop_back();
+    }
+}
+
+vector<vector<int>> findCombinationsWithFixedValue(vector<int> &vec,  int target){
+    
+    set<vector<int>> res;
+    vector<int>path;
+    sort(vec.begin(), vec.end());
+    getCombinationsWithFixedValue(vec, 0, target, path, res);
+    vector<vector<int>> res1;
+    for (auto vec : res) {
+        res1.push_back(vec);
+    }
+    return res1;
+}
+
+第二十、接雨水 Trapping Rain Water *****
+       https://www.jianshu.com/p/135b764b751f
+       思路：
+         1、遍历一遍找到最高的柱子，该柱子将数组分为两半
+         2、处理左部分
+         3、处理右部分
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int mx = 0;          //记录最高柱子的下标
+        int n = height.size();
+        for (int i = 0; i < n; i ++)
+            if (height[i] > height[mx])
+                mx = i;
+
+        int w = 0; //记录体积
+        for (int i = 0, lp = 0; i < mx; i ++) //从前往后遍历左部分，此时右侧的最高高度已确定，lp记录左侧的最高高度
+        {
+            if (height[i] > lp)        //如果左侧有更高的柱子，则提高标尺
+                lp = height[i];
+            else
+                w += lp - height[i];           //较低的柱子的上面是储水的体积
+        }
+
+        for (int i = n - 1, rp = 0; i > mx; i --)          //从后往前遍历右部分，此时左侧的最高高度已确定，rp记录右侧的最高高度
+        {
+            if (height[i] > rp)         //如果右侧有更高的柱子，则提高标尺
+                rp = height[i];
+            else
+                w += rp - height[i];
+        }
+        return w;
+    }
+};
+
+第二十一、Permutations 全排列
+    思路：每次交换num里面的两个数字，经过递归可以生成所有的排列情况
+   class Solution {
+public:
+    vector<vector<int>> permute(vector<int>& num) {
+        vector<vector<int>> res;
+        permuteDFS(num, 0, res);
+        return res;
+    }
+    void permuteDFS(vector<int>& num, int start, vector<vector<int>>& res) {
+        if (start >= num.size()) res.push_back(num);
+        for (int i = start; i < num.size(); ++i) {
+            swap(num[start], num[i]);
+            permuteDFS(num, start + 1, res);
+            swap(num[start], num[i]);
+        }
+    }
+};
+
+第二十二、Rotate Image 旋转图像
+      https://www.cnblogs.com/grandyang/p/4389572.html
+      思路：首先对原数组取其转置矩阵，然后把每行的数字翻转可得到结果
+
+      1  2  3　　　 　　 1  4  7　　　　　  7  4  1
+
+      4  5  6　　-->　　 2  5  8　　 -->   8  5  2　　
+
+      7  8  9 　　　 　　3  6  9　　　　    9  6  3
+     
+     class Solution {
+public:
+    void rotate(vector<vector<int> > &matrix) {
+        int n = matrix.size();
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < n; ++j) {
+                swap(matrix[i][j], matrix[j][i]);
+            }
+            reverse(matrix[i].begin(), matrix[i].end());
+        }
+    }
+};
+
+第二十三、Group Anagrams 群组错位词
+
+Input: ["eat", "tea", "tan", "ate", "nat", "bat"],
+Output:
+[
+  ["ate","eat","tea"],
+  ["nat","tan"],
+  ["bat"]
+]
+vector<vector<string> > groupAnagrams(vector<string>& strs) {
+    vector<vector<string> > res;
+    map<string, vector<string> > m;
+    for (string str : strs) {
+        string t = str;
+        sort(t.begin(), t.end());
+        m[t].push_back(str);
+    }
+    for (auto a : m) {
+        res.push_back(a.second);
+    }
+    return res;
+}
+
+第二十四、Maximum Subarray    连续子数组的最大和
+    https://www.cnblogs.com/grandyang/p/4377150.html
+    方法一： O(n)
+      思路： 定义两个变量res和curSum，其中res保存最终要返回的结果，即最大的子数组之和
+
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int res = INT_MIN, curSum = 0;
+        for (int num : nums) {
+            curSum = max(curSum + num, num);
+            res = max(res, curSum);
+        }
+        return res;
+    }
+};
+
+
+第二十五、 Jump Game 跳跃游戏
+  https://www.cnblogs.com/grandyang/p/4371526.html
+  题意：这道题说的是有一个非负整数的数组，每个数字表示在当前位置的基础上最多可以走的步数，求判断能不能到达最后一个位置 
+   思路： 贪婪算法
+    因为我们并不是很关心每一个位置上的剩余步数，我们只希望知道能否到达末尾，也就是说我们只对最远能到达的位置感兴趣，所以我们维护一个变量reach，表示最远能到达的位置,初始化为0。遍历数组中每一个数字，如果当前坐标大于reach或者reach已经抵达最后一个位置则跳出循环，否则就更新reach的值为其和i + nums[i]中的较大值，其中i + nums[i]表示当前位置能到达的最大位置
+
+ 
+   class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int n = nums.size(), reach = 0;
+        for (int i = 0; i < n; ++i) {
+            if (i > reach || reach >= n - 1) break;
+            reach = max(reach, i + nums[i]);
+        }
+        return reach >= n - 1;
+    }
+};
+
+
+第二十六、 Merge Intervals合并区间
+   
+    方法一：
+    思路：先对区间按照start位置排序，后进行合并 
+vector<vector<int> > mergeInterval(vector<vector<int> >& intervals) {
+    vector<vector<int> >vec;
+    if (intervals.empty()) return vec;
+    sort(intervals.begin(), intervals.end(), compareInterval);
+    vec.push_back(intervals[0]);
+    for (int i = 1; i < intervals.size(); ++i) {
+        vector<int> currentObj = intervals[i];
+        int lastindex = intervals.size();
+        if (currentObj[0]==vec[lastindex -1][0] ) {
+            if (currentObj[1] > vec[lastindex -1][1]) {
+                vec[lastindex -1][1] = currentObj[1];
+            }
+        } else {
+            if (currentObj[0] > vec[lastindex -1][1]) {
+                vec.push_back(currentObj);
+            } else if (currentObj[0] < vec[lastindex -1][1] &&
+                       vec[lastindex -1][1] < currentObj[1]) {
+                vec[lastindex -1][1] = currentObj[1];
+            }
+        }
+    }
+    return vec;
+}
+
+bool compareInterval(vector<int> a,vector<int> b) {
+  retrun  a[0] < b[0];
+}
+
+
+第二十九、Climbing Stairs  爬楼梯，每次只能爬一步或者两步
+     方法一、递归
+     思路：爬n层楼梯的可能的方法为爬n-1层和n-2层楼梯的和.
+class Solution {
+    public:
+  int climbStairs(int n) {
+    if(n <= 0) return 0;
+    if(n == 1) return 1;
+    if(n == 2) return 2;
+    return climbStairs(n-1) + climbStairs(n-2);
+  }
+};
+    方法二、动态规划
+
+int climbStairs(int n) {
+  if(n <= 0){
+      retun -1;
+  }
+  int table[n] = {0};
+  table[1] = 1;
+  table[2] = 2;
+  if(n== 1 || n==2) 
+     return n;
+  for(int i = 3; i <= n;i++) {
+    table[i] = table[i-1]+table[i-2];
+  }
+  return table[n];
+}
+
+第三十、Edit Distance 编辑距离  ***重点
+
+int minDistance(string word1, string word2) {
+    int res = INT_MAX;
+    editDistance(word1.c_str(), word2.c_str(), 0, res);
+    return res;
+}
+
+void editDistance(const char *word1,const char *word2,int step,int &res) {
+    if (!word1[0] && !word2[0]) {
+        res = min(step, res);
+        return;
+    }
+    if (word1[0] == word2[0]) {
+        editDistance(word1+1, word2+1, step, res);
+    } else {
+        if (*word1) {
+            editDistance(word1+1, word2, step+1, res);
+        }
+        if (*word2) {
+            editDistance(word1, word2+1, step+1, res);
+        }
+        if (*word2 && *word1) {
+            editDistance(word1+1, word2+1, step+1, res);
+        }
+    }
+}
+
+第三十一、Sort Colors（颜色排序
+        输入: [2,0,2,1,1,0]
+        输出: [0,0,1,1,2,2]
+    
+    方法一： 计数排序法 
+     思路：分别统计0,1,2的元素个数，然后，重新放回到到数组中
+   
+    方法二、平移插入
+   class Solution {
+public:
+    void sortColors(vector<int>& nums) {
+  int n2 = -1, n1 = -1, n0 = -1,n=nums.size();
+  for (int i = 0; i < n; i++) {
+    if (nums[i] == 0) {
+      nums[++n2] = 2;
+      nums[++n1] = 1;
+      nums[++n0] = 0;
+    }
+    else if (nums[i] == 1) {
+      nums[++n2] = 2;
+      nums[++n1] = 1;
+    }
+    else {
+      nums[++n2] = 2;
+    }
+  }       
+ }
+  方法三、三路快速排序法
+    https://www.cnblogs.com/love-yh/p/7102738.html
+    思路：
+    将数组分为三部分，前部（全是0）、中部（全是1）、后部（全是2）三个部分，这样数组中的每个元素就必属于其中之一，那将前部、后部排列好了，中间就自然排列好了。定义两个指针：beg、end，beg开始指向第一个元素，end指向最后一个元素，然后用指针cur遍历数组，根据总的思路，中部我们不动。情况如下：
+　　1）若遍历到值为1的元素，则说明其属于中部，中部的不动，cur向后移动一个位置；
+　　2）若是遇到值为0的元素，则说明其必属于前部，于是和beg的位置的值进行交换，然后cur向后移动一个位置，beg也向后移动一个位置，表示beg之前的部分已经排好了。
+　　3）若是遇到值为2的元素，则说明其必属于后部，于是，和end位置的值进行交换，然后end向前移动一个位置，表示end之后的都排好了，但是，cur不要向后移动一个位置，因为交换后的cur所指向的值是否等于0 ，即属于前部还没有比较，所以，下次循环还是从此处开始
+   
+  class Solution {
+    public:
+      void sortColors(int A[], int n) 
+      {
+          int begin=0;
+          int end=n-1;
+          int i=0;
+          while(i<=end) {
+             if(A[i]==0) {
+                 swap(A[i],A[begin]);
+                 i++;
+                 begin++;
+             }
+             else if(A[i]==1)
+             {
+                 i++;
+             }
+             else
+             {
+                 swap(A[i],A[end]);
+                 end--;
+             }
+         }    
+     }
+ };
+
+ 第三十二、   Minimum Window Substring 最小窗口子串
+   题意：题给了我们一个原字符串S，还有一个目标字符串T，让我们在S中找到一个最短的子串，使得其包含了T中的所有的字母，并且限制了时间复杂度为 O(n)
+   思路：
+-   我们最开始先扫描一遍T，把对应的字符及其出现的次数存到HashMap中。
+-   然后开始遍历S，就把遍历到的字母对应的HashMap中的value减一，如果减1后仍大于等于0，cnt自增1。
+-   如果cnt等于T串长度时，开始循环，纪录一个字串并更新最小字串值。然后将子窗口的左边界向右移，如果某个移除掉的字母是T串中不可缺少的字母，
+    那么cnt自减1，表示此时T串并没有完全匹配
+   
+   string minWindow(string s, string t) {
+    string res = "";
+    vector<int> letterCnt(128, 0);
+    int left = 0, cnt = 0, minLen = INT_MAX;
+    for (char c : t) ++letterCnt[c];
+    for (int i = 0; i < s.size(); ++i) {
+        if (--letterCnt[s[i]] >= 0) ++cnt;
+        while (cnt == t.size()) {
+            if (minLen > i - left + 1) {
+                minLen = i - left + 1;
+                res = s.substr(left, minLen);
+            }
+            if (++letterCnt[s[left]] > 0) --cnt;
+            ++left;
+        }
+    }
+    return res;
+}
+
+第三十三、Subsets 子集合
+    If S = [1,2,3] 给一个集合，求所有的子集合
+    https://www.cnblogs.com/grandyang/p/4309345.html
+    方法一、迭代回溯法
+
+        class Solution {
+public:
+    vector<vector<int> > subsets(vector<int> &S) {
+        vector<vector<int> > res;
+        vector<int> out;
+        sort(S.begin(), S.end());
+        getSubsets(S, 0, out, res);
+        return res;
+    }
+    void getSubsets(vector<int> &S, int pos, vector<int> &out, vector<vector<int> > &res) {
+        res.push_back(out);
+        for (int i = pos; i < S.size(); ++i) {
+            out.push_back(S[i]);
+            getSubsets(S, i + 1, out, res);
+            out.pop_back();
+        }
+    }
+};
+
+  方法二、非递归
+    思路：我们可以一位一位的网上叠加，比如对于题目中给的例子[1,2,3]来说，最开始是空集，那么我们现在要处理1，就在空集上加1，为[1]
+
+  class Solution {
+public:
+    vector<vector<int> > subsets(vector<int> &S) {
+        vector<vector<int> > res(1);
+        sort(S.begin(), S.end());
+        for (int i = 0; i < S.size(); ++i) {
+            int size = res.size();
+            for (int j = 0; j < size; ++j) {
+                res.push_back(res[j]);
+                res.back().push_back(S[i]);
+            }
+        }
+        return res;
+    }
+}; 
+
+
+第三十四、Word Search 词语搜索
+    
+    Given a 2D board and a word, find if the word exists in the grid
+    For example,
+Given board =
+
+[
+  ["ABCE"],
+  ["SFCS"],
+  ["ADEE"]
+]
+word = "ABCCED", -> returns true,
+
+    https://www.cnblogs.com/grandyang/p/4332313.html
+    思路： 典型的深度优先遍历DFS的应用
+     原二维数组就像是一个迷宫，可以上下左右四个方向行走，我们以二维数组中每一个数都作为起点和给定字符串做匹配，我们还需要一个和原数组等大小的visited数组，是bool型的，用来记录当前位置是否已经被访问过，因为题目要求一个cell只能被访问一次。如果二维数组board的当前字符和目标字符串word对应的字符相等，则对其上下左右四个邻字符分别调用DFS的递归函数，只要有一个返回true，那么就表示可以找到对应的字符串，否则就不能找到
+
+   class Solution {
+public:
+    bool exist(vector<vector<char>>& board, string word) {
+        if (board.empty() || board[0].empty()) return false;
+        int m = board.size(), n = board[0].size();
+        vector<vector<bool>> visited(m, vector<bool>(n, false));
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (search(board, word, 0, i, j, visited)) return true;
+            }
+        }
+        return false;
+    }
+    bool search(vector<vector<char>>& board, string word, int idx, int i, int j, vector<vector<bool>>& visited) {
+        if (idx == word.size()) return true;
+        int m = board.size(), n = board[0].size();
+        if (i < 0 || j < 0 || i >= m || j >= n || visited[i][j] || board[i][j] != word[idx]) return false;
+        visited[i][j] = true;
+        bool res = search(board, word, idx + 1, i - 1, j, visited) 
+                 ||search(board, word, idx + 1, i + 1, j, visited)
+                 ||search(board, word, idx + 1, i, j - 1, visited)
+                 ||search(board, word, idx + 1, i, j + 1, visited);
+        visited[i][j] = false;
+        return res;
+    }
+};
+
+第三十七、中序遍历
+
+void searchCenterOrderTreeByNonRecursion(TreeNode *treeNode) {
+    if (!treeNode) {
+        return;
+    }
+    stack<TreeNode *>q;
+    q.push(treeNode);
+    TreeNode *curr =  treeNode->left;
+    while (curr||!q.empty()) {
+        while (curr) {
+            q.push(curr);
+            curr = curr->left;
+        }
+        TreeNode *node = q.top();
+        cout << node->val <<endl;
+        q.pop();
+        curr = node->right;
+    }
+}  
+
+第三十八、Unique binary search trees 唯一二叉搜索树
+  题意：给定数n，二叉树的结点的值分别为1,2....n。问能组成多少种不同的二叉搜索树
+   方法一：递归
+    思路：空树和只有根节点时，也为BST。对于一点i，当其为根节点时，左子树的节点的个数为i-1，（为1,...i-1）,右子树的个数为n-i（为，i+1,...n）。对一个根来说，唯一二叉树的个数为左子树结点的个数乘以右子树的个数。而根节点可以从1到n 中选择
+  class Solution {
+     public:
+      int numTrees(int n) 
+      {
+          if(n<=1)    return 1;
+          int sum=0;
+          for(int i=1;i<=n;++i)
+              sum+=numTrees(i-1)*numTrees(n-i);
+  
+         return sum;    
+     }
+ };
+
+第三十九、 Validate Binary Search Tree 验证二叉搜索树
+  方法一、中序遍历 左<根<右  （递归和非递归方法）
+      思路：后面的数据永远大于前面的 
+  class Solution {
+public:
+    bool isValidBST(TreeNode* root) {
+        stack<TreeNode*> s;
+        TreeNode *p = root, *pre = NULL;
+        while (p || !s.empty()) {
+            while (p) {
+                s.push(p);
+                p = p->left;
+            }
+            p = s.top(); s.pop();
+            if (pre && p->val <= pre->val) return false;
+            pre = p;
+            p = p->right;
+        }
+        return true;
+    }
+};
+
+第四十、Symmetric Tree 判断对称树
+class Solution {
+public:
+    bool isSymmetric(TreeNode *root) {
+        if (!root) return true;
+        return isSymmetric(root->left, root->right);
+    }
+    bool isSymmetric(TreeNode *left, TreeNode *right) {
+        if (!left && !right) return true;
+        if (left && !right || !left && right || left->val != right->val) return false;
+        return isSymmetric(left->left, right->right) && isSymmetric(left->right, right->left);
+    }
+    
+};
+
+第四十一、Binary Tree Level Order Traversal 二叉树层序遍历
+  
+  class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        if (!root) return {};
+        vector<vector<int>> res;
+        queue<TreeNode*> q{{root}};
+        while (!q.empty()) {
+            vector<int> oneLevel;
+            for (int i = q.size(); i > 0; --i) {
+                TreeNode *t = q.front(); q.pop();
+                oneLevel.push_back(t->val);
+                if (t->left) q.push(t->left);
+                if (t->right) q.push(t->right);
+            }
+            res.push_back(oneLevel);
+        }
+        return res;
+    }
+};
+
+第四十二、Maximum Depth of Binary Tree 二叉树的最大深度
+
+   方法一、递归
+   class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if (!root) return 0;
+        return 1 + max(maxDepth(root->left), maxDepth(root->right));
+    }
+};
+ 方法二、层次遍历
+    class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if (!root) return 0;
+        int res = 0;
+        queue<TreeNode*> q{{root}};
+        while (!q.empty()) {
+            ++res;
+            for (int i = q.size(); i > 0; --i) {
+                TreeNode *t = q.front(); q.pop();
+                if (t->left) q.push(t->left);
+                if (t->right) q.push(t->right);
+            }
+        }
+        return res;
+    }
+};
+
+第四十三、Construct Binary Tree from Preorder and Inorder Traversal 由先序和中序遍历建立二叉树
+  
+  https://www.cnblogs.com/springfor/p/3884034.html
+
+   思路：
+      1. 先序遍历的从左数第一个为整棵树的根节点。
+      2. 中序遍历中根节点是左子树右子树的分割点。
+      3、递归折半分割
+
+  public class Solution {
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        return helper(preorder, inorder, 0, preorder.length - 1, 0, inorder.length - 1);
+    }
+
+    public TreeNode helper(int[] preorder, int[] inorder, int preStart, int preEnd, int inStart, int inEnd) {
+        if(preStart > preEnd || inStart > inEnd) {
+            return null;
+        }
+        TreeNode node = new TreeNode(preorder[preStart]);
+        int index = 0;
+        for(int i = inStart; i <= inEnd; i++){
+            if(inorder[i] == preorder[preStart]) {
+                index = i;
+                break;
+            }
+        }
+        node.left = helper(preorder, inorder, preStart + 1, preStart + index - inStart, inStart, index - 1);
+        node.right = helper(preorder, inorder, preStart + index - inStart + 1, preEnd, index + 1, inEnd);
+        return node;
+    }
+}
+
+第四十四、Flatten Binary Tree to Linked List 将二叉树展开成链表
+
+方法一、递归
+
+class Solution {
+public:
+    void flatten(TreeNode *root) {
+        if (!root) return;
+        if (root->left) flatten(root->left);
+        if (root->right) flatten(root->right);
+        TreeNode *tmp = root->right;
+        root->right = root->left;
+        root->left = NULL;
+        while (root->right) root = root->right;
+        root->right = tmp;
+    }
+};
+
+方法二、这个方法是从根节点开始出发，先检测其左子结点是否存在，如存在则将根节点和其右子节点断开，将左子结点及其后面所有结构一起连到原右子节点的位置，把原右子节点连到元左子结点最后面的右子节点之后
+
+class Solution {
+public:
+    void flatten(TreeNode *root) {
+        TreeNode *cur = root;
+        while (cur) {
+            if (cur->left) {
+                TreeNode *p = cur->left;
+                while (p->right) p = p->right;
+                p->right = cur->right;
+                cur->right = cur->left;
+                cur->left = NULL;
+            }
+            cur = cur->right;
+        }
+    }
+};
+
+第四十五、 Best Time to Buy and Sell Stock 买卖股票的最佳时间
+   思路：只需要遍历一次数组，用一个变量记录遍历过数中的最小值，然后每次计算当前值和这个最小值之间的差值最为利润，然后每次选较大的利润来更新。当遍历完成后当前利润即为所求
+
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int res = 0, buy = INT_MAX;
+        for (int price : prices) {
+            buy = min(buy, price); //bug花钱最少
+            res = max(res, price - buy); //差价最大
+        }
+        return res;
+    }
+};
+
+第四十六、Binary Tree Maximum Path Sum 求二叉树的最大路径和
+    
+    class Solution {
+public:
+    int maxPathSum(TreeNode* root) {
+        int res = INT_MIN;
+        helper(root, res);
+        return res;
+    }
+    int helper(TreeNode* node, int& res) {
+        if (!node) return 0;
+        int left = max(helper(node->left, res), 0);
+        int right = max(helper(node->right, res), 0);
+        res = max(res, left + right + node->val);
+        return max(left, right) + node->val;
+    }
+};
+
+第四十七、 Longest Consecutive Sequence 求最长连续序列
+       题意：
+       Input: [100, 4, 200, 1, 3, 2]
+       Output: 4
+       The longest consecutive elements sequence is [1, 2, 3, 4]
+     
+      思路：数据存set表，遍历找到某个数，删除，并两头扩大区域遍历
+
+class Solution {
+public:
+    int longestConsecutive(vector<int>& nums) {
+        int res = 0;
+        unordered_set<int> s(nums.begin(), nums.end());
+        for (int val : nums) {
+            if (!s.count(val)) continue;
+            s.erase(val);
+            int pre = val - 1, next = val + 1;
+            while (s.count(pre)) s.erase(pre--);
+            while (s.count(next)) s.erase(next++);
+            res = max(res, next - pre - 1);
+        }
+        return res;
+    }
+};
+ 
+
+第四十八、Single Number 
+    Given an array of integers, every element appears twice except for one. Find that single one.
+
+    思路：所以对所有数进行异或，得出的那个数就是single number
+    int singleNumber(int[] A) {
+        int num = 0;
+        for(int i=0;i<A.length;i++){
+          num^=A[i];
+        }
+     return num;
+    }
+
+第五十、Linked List Cycle 单链表中的环
+
+class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+        ListNode *slow = head, *fast = head;
+        while (fast && fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+            if (slow == fast) return true;
+        }
+        return false;
+    }
+};
+
+
+
+
+
+

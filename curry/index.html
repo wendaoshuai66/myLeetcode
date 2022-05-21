@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>
+        函数柯里化，是固定部分参数，返回一个接受剩余参数的函数，也称为部分计算函数，目的是为了缩小使用范围，创建一个针对性更强的函数
+    </p>
+    <script>
+        function curry(fn, args) {
+            var length = fn.length;
+            var args = args || [];
+            console.log(args, '[-')
+            return function () {
+                // console.log(length, '--length--')
+                newArgs = args.concat(Array.prototype.slice.call(arguments));
+                // console.log(newArgs, '----newargs')
+                // console.log(length)
+                if (newArgs.length < length) {
+                    return curry.call(this, fn, newArgs);
+                } else {
+                    return fn.apply(this, newArgs)
+                }
+            }
+        }
+        function multifn(a, b, c) {
+            return a * b * c;
+        }
+        var multi = curry(multifn);
+        console.log(multi(2))
+        // multi(2, 3, 4);
+        // multi(2)(3, 4);
+        // multi(2, 3)(4);
+    </script>
+</body>
+
+</html>

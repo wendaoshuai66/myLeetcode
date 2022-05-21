@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    // 与二叉树后续遍历很相似
+    <script>
+        function sort(arr) {
+            function mergeSort(arr) {
+                let len = arr.length;
+                if (len < 2) {
+                    return arr;
+                }
+                let mid = Math.floor((0 + arr.length) / 2);
+                let left = arr.slice(0, mid);
+                let right = arr.slice(mid);
+                const arr1 = mergeSort(left);
+                const arr2 = mergeSort(right);
+                return merge(arr1, arr2);
+            }
+            function merge(arr1, arr2) {
+                let res = [];
+                while (arr1.length && arr2.length) {
+                    if (arr1[0] <= arr2[0]) {
+                        res.push(arr1.shift());
+                    } else {
+                        res.push(arr2.shift())
+                    }
+                }
+                while (arr1.length) {
+                    res.push(arr1.shift());
+                }
+                while (arr2.length) {
+                    res.push(arr2.shift());
+                }
+                return res;
+            }
+            return mergeSort(arr, 0, arr.length);
+        }
+        const array = [2, 3, 1, 9, 6, 4, 7, 8, 5];
+        // console.log(array.sort((a, b) => a - b))
+        console.log(sort(array))
+    </script>
+</body>
+
+</html>

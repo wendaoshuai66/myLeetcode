@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    动态规划 特点 题型 求最值
+    <br>
+    关键特点
+    <br>
+    1. 重叠问题
+    <br>
+    2. 状态转移方程
+    <br>
+    3. 最优结构
+    <br>
+    解题套路
+    <br>
+    1.明确状态
+    <br>
+    2. 明确选择
+    <br>
+    3. 明确db 函数、数组定义
+    <br>
+    4. 明确base
+    斐波那契数列
+    暴力递归
+    <script>
+        // 时间复杂度 2的n次方
+        function fib(n) {
+            if (n === 1 || n === 2) return 1;
+            return fib(n - 1) + fib(n - 2);
+        }
+        // 1 ==> 1
+        // 2 ==> 1
+        // f(2) + f(1);
+    </script>
+    优化 带备忘录的 递归 时间复杂度 O（n）
+    <script>
+        var memo = {};
+        function help(n) {
+            if (n === 1 || n === 2) {
+                return 1;
+            }
+            if (memo[n]) {
+                return memo[n]
+            }
+            memo[n] = help(n - 1) + help(n - 2);
+            return memo[n];
+        }
+        help(n);
+    </script>
+    // 优化2 状态转移 另外一种写法，时间复杂度和空间复杂度其实和上面一样
+    <script>
+        function Fibonacci(n) {
+            // 状态转移
+            var memo = {};
+            if (n === 1) {
+                return 0;
+            }
+            memo[0] = 0; memo[1] = 1;
+            for (let i = 2; i <= n; i++) {
+                memo[i] = memo[i - 1] + memo[i - 2];
+            }
+            return memo[n];
+        }
+    </script>
+</body>
+
+</html>

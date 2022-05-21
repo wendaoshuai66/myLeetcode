@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    实现一个cacheRequest，多次发出同一个请求，实际只发出一次，其他从缓存取
+    <script>
+        const PENDING = 'PENDING';
+        const SUCCESS = 'SUCCESS';
+        const FAIL = 'FAIL';
+        // 模拟请求
+        const request = (url, option) => new Promise((res) => {
+            setTimeout(() => {
+                res({ data: option });
+            }, 2000);
+        });
+        const map = new Map();
+        const catcheRequest = (url, option) => {
+            let key = `${url}:${option.method}`;
+            if (map.has(key)) {
+                if (map.get(key).status === PENDING) {
+                    return map.get(key).mywait;
+                }
+                return Promise.resolve(map.get(key).data);
+            } else {
+                let requestApi = request(url, option);
+                map.set(key, { status: 'PENDING', mywait: requestApi });
+                requestApi.then((data) => {
+                    map.set(key, { status: 'SUCCESS', data });
+                    return Promise.resolve(data);
+                }).catch(err => {
+                    map.set(key, { status: 'FAIL', err });
+                    return Promise.reject(err)
+                })
+            }
+        } 
+    </script>
+</body>
+
+</html>

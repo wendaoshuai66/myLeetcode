@@ -1,0 +1,27 @@
+{
+  "name": "ts-designPatterns",
+  "version": "1.0.0",
+  "description": "使用typescript 实现 一版 ，目的简单的来表达设计模式的思想",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wendaoshuai66/ts-designPatterns.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wendaoshuai66/ts-designPatterns/issues"
+  },
+  "homepage": "https://github.com/wendaoshuai66/ts-designPatterns#readme",
+  "devDependencies": {
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "esprima": "^4.0.1"
+  }
+}

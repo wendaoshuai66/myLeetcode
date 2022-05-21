@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    框架
+    void sort(int[] nums, int lo, int hi) {
+    if (lo >= hi) {
+    return;
+    }
+    对 nums[lo..hi] 进行切分
+    <p>
+        使得 nums[lo..p-1] 小于等于 nums[p] 小于 nums[p+1..hi] int p=partition(nums, lo, hi); // 去左右子数组进行切分 sort(nums, lo, p -
+        1);
+    </p>
+    sort(nums, p + 1, hi); }
+    <script>
+        function sort(arr) {
+            // 获取基准值，并将小的往前移动
+            function partition(arr, lo, hi) {
+                let p = lo, index = p + 1;
+                for (let i = index; i <= hi; i++) {
+                    if (arr[i] < arr[p]) {
+                        [arr[i], arr[index]] = [arr[index], arr[i]];
+                        index++;
+                    }
+                }
+                [arr[p], arr[index - 1]] = [arr[index - 1], arr[p]];
+                return index - 1;
+            }
+            function quickSort(arr, lo, hi) {
+                if (lo >= hi) {
+                    return;
+                }
+                const p = partition(arr, lo, hi);
+                // quickSort(arr, lo, p - 1);
+                // quickSort(arr, p + 1, hi);
+                return arr;
+            }
+            return quickSort(arr, 0, arr.length - 1)
+        }
+        // const array = [2, 3, 1, 9, 6, 4, 7, 8, 5];
+        const array = [5, 4, 3]
+        // console.log(array.sort((a, b) => a - b))
+        console.log(sort(array))
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    编写一个函数，检查输入的链表是否是回文的。
+    回文链表
+    <script>
+        class Node {
+            constructor(val) {
+                this.next = null;
+                this.val = val;
+            }
+        }
+        class LinkNode {
+            constructor() {
+                this.head = null;
+            }
+            addLast(node) {
+                if (this.head === null) {
+                    this.head = node;
+                    return;
+                }
+                let currentNode = this.head;
+                while (currentNode.next != null) {
+                    currentNode = currentNode.next;
+                }
+                currentNode.next = node;
+            }
+            batchNode(arr) {
+                for (const item of arr) {
+                    const node = new Node(item);
+                    this.addLast(node);
+                }
+                return this.head;
+            }
+        }
+        const linkNode = new LinkNode();
+        const linkNodes = linkNode.batchNode([1, 2, 3, 4, 5, 6, 7]);
+        let left = linkNodes;
+        // 利用函数调用的是栈的，所以后序遍历即可
+        function traverse(right) {
+            if (right === null) {
+                return null;
+            }
+            // console.log(right.val, '-前序遍历')
+            traverse(right.next);
+
+
+            console.log(node, '后序遍历')
+            // left = right.next;
+        }
+        traverse(linkNodes)
+        var isPalindrome = function (head) {
+            var left = head;
+            function traverse(right) {
+                if (right === null) {
+                    return true;
+                }
+                var res = traverse(right.next);
+                res = res && (right.val == left.val);
+                left = left.next;
+                return res;
+            }
+            return traverse(head)
+        };
+    </script>
+</body>
+
+</html>

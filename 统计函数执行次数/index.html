@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        var getFunCallTimes = (function () {
+            // 装饰器，在当前函数执行前先执行另一个函数
+            function decoratorBefore(func, beforeFunc) {
+                return function () {
+                    // 先执行before 函数
+                    var ret = beforeFunc.apply(this, ...arguments)
+                    if (ret !== false) {
+                        func.apply(this, ...arguments)
+                    }
+                }
+            }
+            return function (func, funcName) {
+                funcName = funcName || func;
+                var funcObj = {};
+                if (funcObj[funcName]) {
+                    return func[funcName];
+                }
+                funcObj[funcName] = decoratorBefore(func, function () {
+                    funcObj[funcName].callTimes++;
+                })
+                funcObj[funcName].callTimes = 0;
+                return funcObj[funcName];
+            }
+        })()
+        function firstFunction() {
+            console.log('我是第一个函数');
+        }
+        function secondFunction() {
+            console.log('我是第二个函数');
+        }
+        firstFunction = getFunCallTimes(firstFunction, 'firstFunction');
+        firstFunction();
+        firstFunction();
+        firstFunction();
+        firstFunction();
+        console.log(firstFunction.callTimes); // 4
+        secondFunction = getFunCallTimes(secondFunction);
+        secondFunction();
+        console.log(secondFunction.callTimes); // 1
+        secondFunction();
+        console.log(secondFunction.callTimes); // 2
+    </script>
+</body>
+
+</html>

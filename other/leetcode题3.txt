@@ -1,0 +1,1042 @@
+
+ 第一、 LRU Cache
+
+    题目大意：设计一个用于LRU cache算法的数据结构
+    分析 ：
+        为了保持cache的性能，使查找，插入，删除都有较高的性能，我们使用双向链表（std::list）和哈希表（std::unordered_map）作为cache的数据结构，因为：
+
+           双向链表插入删除效率高（单向链表插入和删除时，还要查找节点的前节点）
+           哈希表保存每个节点的地址，可以基本保证在O(1)时间内查找节点
+
+  思路，具体实现细节：
+
+      越靠近链表头部，表示节点上次访问距离现在时间最短，尾部的节点表示最近访问最少
+      查询或者访问节点时，如果节点存在，把该节点交换到链表头部，同时更新hash表中该节点的地址
+      插入节点时，如果cache的size达到了上限，则删除尾部节点，同时要在hash表中删除对应的项。新节点都插入链表头部。
+
+    struct CacheNode  {
+      int key;
+      int value;
+      CacheNode(int k, int v):key(k), value(v){}
+    };
+  
+  class LRUCache{
+    public:
+     LRUCache(int capacity) {
+         size = capacity;
+     }
+     
+     int get(int key) {
+         if(cacheMap.find(key) == cacheMap.end())
+             return -1;
+         else {
+             //把当前访问的节点移到链表头部,并且更新map中该节点的地址
+             cacheList.splice(cacheList.begin(), cacheList, cacheMap[key]);
+             cacheMap[key] = cacheList.begin();
+             return cacheMap[key]->value;
+         }        
+     }
+     
+     void set(int key, int value) {
+         if(cacheMap.find(key) == cacheMap.end())
+         {
+             if(cacheList.size() == size)
+             {//删除链表尾部节点（最少访问的节点）
+                 cacheMap.erase(cacheList.back().key);
+                 cacheList.pop_back();
+             }
+             //插入新节点到链表头部,并且更新map中增加该节点
+             cacheList.push_front(CacheNode(key, value));
+             cacheMap[key] = cacheList.begin();
+         }
+         else{
+             //更新节点的值，把当前访问的节点移到链表头部,并且更新map中该节点的地址
+             cacheMap[key]->value = value;
+             cacheList.splice(cacheList.begin(), cacheList, cacheMap[key]);
+             cacheMap[key] = cacheList.begin();
+         }
+     }
+
+ private:
+     list<CacheNode> cacheList; //双向链表
+     unordered_map<int, list<CacheNode>::iterator>cacheMap;//hash存储对象的位置
+     int size;
+};
+
+第三、 Sort List 链表排序
+      根据单链表的特点，最适于用归并排序
+      思路：通过快慢指针将链表切成前后两段，再进行归并排序，依次进行切分排序
+
+class Solution {
+public:
+    ListNode* sortList(ListNode* head) {
+        if (!head || !head->next) return head;
+        ListNode *slow = head, *fast = head, *pre = head;
+        while (fast && fast->next) {
+            pre = slow;
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        pre->next = NULL;
+        return merge(sortList(head), sortList(slow));
+    }
+
+    ListNode* merge(ListNode* l1, ListNode* l2) {
+        if (!l1) return l2;
+        if (!l2) return l1;
+        if (l1->val < l2->val) {
+            l1->next = merge(l1->next, l2);
+            return l1;
+        } else {
+            l2->next = merge(l1, l2->next);
+            return l2;
+        }
+    }
+};
+
+第四、 Maximum Product Subarray 求最大子数组乘积
+    
+    题意：找到最大连续子数组乘积
+    Input: [2,3,-2,4]
+    Output: 6
+
+   方法一：动态规划
+
+    思路： 
+    用两个dp数组，其中f[i]表示子数组[0, i]范围内并且一定包含nums[i]数字的最大子数组乘积，g[i]表示子数组[0, i]范围内并且一定包含nums[i]数字的最小子数组乘积，初始化时f[0]和g[0]都初始化为nums[0]，其余都初始化为0。
+
+    那么从数组的第二个数字开始遍历，那么此时的最大值和最小值只会在这三个数字之间产生，即f[i-1]*nums[i]，
+    g[i-1]*nums[i]，和nums[i]。所以我们用三者中的最大值来更新f[i]，用最小值来更新g[i]，然后用f[i]来更新结果res即可
+
+   int maxProduct(vector<int> &vec) {
+       if(vec.size()==0)
+        return 0;
+       vector<int> maxcur(vec.size(),0);
+       vector<int> mincur(vec.size(),0);
+       maxcur[0]=vec[0];
+       mincur[0]=vec[0];
+       int maxproduct = vec[0];
+       for(int i=1;i<vec.size();i++) {
+          maxcur[i] = max(vec[i],max(maxcur[i-1]*vec[i],mincur[i-1]*vec[i]));
+          mincur[i] = min(vec[i],min(mincur[i-1]*vec[i],maxcur[i-1]*vec[i]));
+          maxproduct = max(maxcur[i],maxproduct);
+       }
+       return  maxproduct;
+   }
+
+第五、 Min Stack 最小栈
+
+class MinStack {
+public:
+    /** initialize your data structure here. */
+    MinStack() {}
+    
+    void push(int x) {
+        s1.push(x);
+        if (min_stack.empty() || x <= min_stack.top())  {
+           min_stack.push(x);
+        }
+    }
+    
+    void pop() {
+        if (s1.top() == min_stack.top())  {
+            min_stack.pop();
+        }
+        s1.pop();
+    }
+    
+    int top() {
+        return s1.top();
+    }
+    
+    int getMin() {
+        return min_stack.top();
+    }
+    
+private:
+    stack<int> s1, min_stack;
+};
+
+第六、Number of Islands 岛屿的数量
+    思路：分析题意可知，我们只需要把’1‘的连通区域的个数求解出来即可
+    class Solution {
+public:
+    int numIslands(vector<vector<char> > &grid) {
+        if (grid.empty() || grid[0].empty()) return 0;
+        int m = grid.size(), n = grid[0].size(), res = 0;
+        vector<vector<bool> > visited(m, vector<bool>(n, false));
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == '1' && !visited[i][j]) {
+                    numIslandsDFS(grid, visited, i, j);
+                    ++res;
+                }
+            }
+        }
+        return res;
+    }
+    void numIslandsDFS(vector<vector<char> > &grid, vector<vector<bool> > &visited, int x, int y) {
+        if (x < 0 || x >= grid.size()) return;
+        if (y < 0 || y >= grid[0].size()) return;
+        if (grid[x][y] != '1' || visited[x][y]) return;
+        visited[x][y] = true;
+        numIslandsDFS(grid, visited, x - 1, y);
+        numIslandsDFS(grid, visited, x + 1, y);
+        numIslandsDFS(grid, visited, x, y - 1);
+        numIslandsDFS(grid, visited, x, y + 1);
+     }
+};
+
+第七、Implement Trie (Prefix Tree) 实现字典树(前缀树)
+
+  class TrieNode {
+public:
+    // Initialize your data structure here.
+    TrieNode *child[26];
+    bool isWord;
+    TrieNode() : isWord(false){
+        for (auto &a : child)
+            a = NULL;
+    }
+};
+
+class Trie {
+public:
+    Trie() {
+        root = new TrieNode();
+    }
+    
+    // Inserts a word into the trie.
+    void insert(string s) {
+        TrieNode *p = root;
+        for (auto &a : s) {
+            int i = a - 'a';
+            if (!p->child[i]) {
+               p->child[i] = new TrieNode();
+            }
+            p = p->child[i];
+        }
+        p->isWord = true;
+    }
+    
+    // Returns if the word is in the trie.
+    bool search(string key) {
+        TrieNode *p = root;
+        for (auto &a : key) {
+            int i = a - 'a';
+            if (!p->child[i]){
+               return false;
+            }
+            p = p->child[i];
+        }
+        return p->isWord;
+    }
+    
+    // Returns if there is any word in the trie
+    // that starts with the given prefix.
+    bool startsWith(string prefix) {
+        TrieNode *p = root;
+        for (auto &a : prefix) {
+            int i = a - 'a';
+            if (!p->child[i]) {
+                return false;
+            }
+            p = p->child[i];
+        }
+        return true;
+    }
+    
+private:
+    TrieNode* root;
+};
+
+第八、Invert Binary Tree 翻转二叉树
+   
+   方法一：递归
+      TreeNode* invertTree(TreeNode* root) {
+	if(root==NULL)
+		 return NULL;
+		TreeNode * ptmpNode = root->left;
+		root->left = invertTree(root->right);
+		root->right = invertTree(ptmpNode);
+		return root;
+    }
+
+    方法二、层次遍历
+        非递归算法：
+          1、交换根节点的左右子节点
+          2、交换第二层每个节点的左右子节点  
+
+TreeNode* invertTree2(TreeNode* root) {
+		
+		queue<TreeNode*> tree_queue;
+		if (root == NULL)
+			return root;
+		tree_queue.push(root);
+		
+		while(tree_queue.size() > 0){
+			TreeNode * pNode = tree_queue.front();
+			tree_queue.pop();
+			TreeNode * pLeft = pNode->left;
+			pNode->left = pNode->right;
+			pNode->right = pLeft;
+			if (pNode->left)
+				tree_queue.push(pNode->left);
+			if (pNode->right)
+				tree_queue.push(pNode->right);
+		}
+		return root;
+	}
+
+ 第九、Palindrome Linked List 回文链表
+
+    思路： 
+       使用快慢指针找中点的原理是fast和slow两个指针，每次快指针走两步，慢指针走一步，等快指针走完时，慢指针的位置就是中点。我们还需要用栈，每次慢指针走一步，都把值存入栈中，等到达中点时，链表的前半段都存入栈中了，由于栈的后进先出的性质，就可以和后半段链表按照回文对应的顺序比较了
+    class Solution {
+public:
+  bool isPalindrome(ListNode *head) {
+    
+    ListNode *slow = head;
+    ListNode *fast = head;
+    stack<ListNode*> node_stack;
+    while (fast && fast->next) {
+        node_stack.push(slow);
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    
+    if (fast && !fast->next ) { //奇数时候
+        slow = slow->next;
+    }
+    
+    while (slow) {
+        ListNode *temp = node_stack.top();
+        node_stack.pop();
+        if (slow->val != temp->val) {
+            return false;
+        }
+        slow = slow->next;
+    }
+    return true;
+}
+};
+
+ 第十、Lowest Common Ancestor of a Binary Tree 二叉树的最小共同父节点
+
+ https://www.cnblogs.com/grandyang/p/4641968.html
+
+      方法一、递归法
+       思路：
+        class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+       if (!root || p == root || q == root) return root;
+       TreeNode *left = lowestCommonAncestor(root->left, p, q);
+       TreeNode *right = lowestCommonAncestor(root->right, p , q);
+       if(!left) return right;
+       if(!right) return left;
+       return root;
+    }
+};
+      方法二、回溯法
+         找到各自路径，找出路径中第一个相同的节点
+
+第十一、Product of Array Except Self 除本身之外的数组之积
+     for example, given [1,2,3,4], return [24,12,8,6].
+     思路：
+     对于某一个数字，如果我们知道其前面所有数字的乘积，同时也知道后面所有的数乘积，那么二者相乘就是我们要的结果，所以我们只要分别创建出这两个数组即可，分别从数组的两个方向遍历就可以分别创建出乘积累积数组
+   class Solution {
+public:
+    vector<int> productExceptSelf(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> fwd(n, 1), bwd(n, 1), res(n);
+        for (int i = 0; i < n - 1; ++i) {
+            fwd[i + 1] = fwd[i] * nums[i];
+        }
+        for (int i = n - 1; i > 0; --i) {
+            bwd[i - 1] = bwd[i] * nums[i];
+        }
+        for (int i = 0; i < n; ++i) {
+            res[i] = fwd[i] * bwd[i];
+        }
+        return res;
+    }
+}; 
+
+ 方法二是对方法一进行空间上的优化
+
+   class Solution {
+public:
+    vector<int> productExceptSelf(vector<int>& nums) {
+        vector<int> res(nums.size(), 1);
+        for (int i = 1; i < nums.size(); ++i) {
+            res[i] = res[i - 1] * nums[i - 1];
+        }
+        int right = 1;
+        for (int i = nums.size() - 1; i >= 0; --i) {
+            res[i] *= right;
+            right *= nums[i];
+        }
+        return res;
+    }
+};
+
+第十二、 Meeting Rooms II 会议室之二
+    For example,
+    Given [[0, 30],[5, 10],[15, 20]],
+    return 2.
+   题意： 这道题让我们求最少需要安排几个会议室，有时间冲突的肯定需要安排在不同的会议室
+   
+   方法一、 
+      思路：
+      分别保存起始时间和结束时间，然后各自排个序，我们定义结果变量res和结束时间指针endpos，然后我们开始遍历，如果当前起始时间小于结束时间指针的时间，则结果自增1，反之结束时间指针自增1，这样我们可以找出重叠的时间段，从而安排新的会议室
+
+     class Solution {
+public:
+    int minMeetingRooms(vector<Interval>& intervals) {
+        vector<int> starts, ends;
+        int res = 0, endpos = 0;
+        for (auto a : intervals) {
+            starts.push_back(a.start);
+            ends.push_back(a.end);
+        }
+        sort(starts.begin(), starts.end());
+        sort(ends.begin(), ends.end());
+        for (int i = 0; i < intervals.size(); ++i) {
+            if (starts[i] < ends[endpos]) ++res;
+            else ++endpos;
+        }
+        return res;
+    }
+};
+
+ 方法二、 最小堆
+ http://www.cnblogs.com/grandyang/p/5244720.html
+   class Solution {
+public:
+    int minMeetingRooms(vector<Interval>& intervals) {
+        sort(intervals.begin(), intervals.end(), [](const Interval &a, const Interval &b){return a.start < b.start;});
+        priority_queue<int, vector<int>, greater<int>> q;
+        for (auto a : intervals) {
+            if (!q.empty() && q.top() <= a.start) q.pop();
+            q.push(a.end);
+        }
+        return q.size();
+    }
+};
+
+ 
+ 第二十三 Move Zeroes 移动零    0 0 1
+  思路：将一个给定数组中所有的0都移到后面，把非零数前移，要求不能改变非零数的相对应的位置关系，而且不能拷贝额外的数组，那么只能用替换法in-place来做，需要用两个指针，一个不停的向后扫，找到非零位置，然后和前面那个指针交换位置即可
+
+ class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+        int left = 0, right = 0;
+        while (right < nums.size()) {
+            if (nums[right]) {
+                swap(nums[left], nums[right]);
+                left++;
+            }
+            ++right;
+        }
+    }
+};
+
+第二十四、Find the Duplicate Number寻找重复数 
+
+ 题目：给定一个包含 n + 1 个整数的数组 nums，其数字都在 1 到 n 之间，包括 1 和 n ，可知至少存在一个重复的整数。假设只有一个重复的整数，找出这个重复的数
+
+ 输入: 
+[1,2,2,3,4,5]
+
+输出: 2
+
+思路： 二分法 
+一共n+1个数字（n=5），数字范围为1-n及1-5，根据抽屉原理，在数字1-5中有6个数字，则至少有一个数字出现了两次以上。我们初始化low=1（数字的范围下限），high=5（数字的范围上限），mid=（high+low）/2=3，则mid把原数组分为1-3（包含3）和大于3的部分，如果原数组的数字在1-3的出现的次数cnt大于mid（简单理解为数字1-3最多只能包含3个数字，如果包含的数字个数大于3个，那么一定会出现重复的数字，及重复的数字一定在1-3的范围内），所以每次二分，在每个二分循环内都遍历一次数组，时间复杂度为O(nlogn)，空间复杂度为O(1)！
+
+int findDuplicate(vector<int>& nums) {
+	
+	//数字下限
+	int low = 1;
+	//数字上限
+	int high = nums.size() - 1;
+	
+	while (low < high) {
+		int cnt = 0;
+		int mid = (low + high) / 2;
+		for (int i = 0; i < nums.size(); i++) {
+			//统计小于等于mid的个数
+			if (nums[i] <= mid) {
+				 cnt++;
+			}
+		}
+		//如果大于mid则在数字在小的那部分，及low-mid
+		if (cnt > mid) {
+			  high = mid;
+		}
+		//否则，在大的那部分mid+1-high
+		else {
+			  low = mid + 1;
+		}
+	}
+	return low;
+}
+
+第二十七、Remove Invalid Parentheses 移除非法括号(无意义的题目)
+
+Input: "()())()"
+Output: ["()()()", "(())()"]
+
+class Solution {
+public:
+    vector<string> removeInvalidParentheses(string s) {
+        vector<string> res;
+        unordered_set<string> visited{{s}};
+        queue<string> q{{s}};
+        bool found = false;
+        while (!q.empty()) {
+            string t = q.front(); q.pop();
+            if (isValid(t)) {
+                res.push_back(t);
+                found = true;
+            }
+            if (found) continue;
+            for (int i = 0; i < t.size(); ++i) {
+                if (t[i] != '(' && t[i] != ')') continue;
+                string str = t.substr(0, i) + t.substr(i + 1);
+                if (!visited.count(str)) {
+                    q.push(str);
+                    visited.insert(str);
+                }
+            }
+        }
+        return res;
+    }
+    bool isValid(string t) {
+        int cnt = 0;
+        for (int i = 0; i < t.size(); ++i) {
+            if (t[i] == '(') ++cnt;
+            else if (t[i] == ')' && --cnt < 0) return false;
+        }
+        return cnt == 0;
+    }
+};
+  
+第二十八、Best Time to Buy and Sell Stock with Cooldown 买股票的最佳时间含冷冻期??
+    思路：动态规划 
+       buy[i]  = max(sell[i-2] - price, buy[i-1]) 
+       sell[i] = max(buy[i-1] + price, sell[i-1])
+
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int buy = INT_MIN, pre_buy = 0, sell = 0, pre_sell = 0;
+        for (int price : prices) {
+            pre_buy = buy;
+            buy = max(pre_sell - price, pre_buy);
+            pre_sell = sell;
+            sell = max(pre_buy + price, pre_sell);
+        }
+        return sell;
+    }
+};
+
+
+第三十一、 House Robber III 打家劫舍之三
+   沿着二叉树开始偷，碉堡了，题目中给的例子看似好像是要每隔一个偷一次，但实际上不一定只隔一个，一共能偷到最多的钱财
+
+方法一、递归
+思路：
+   那么我们对于某一个节点，如果其左子节点存在，我们通过递归调用函数，算出不包含左子节点返回的值，同理，如果右子节点存在，算出不包含右子节点返回的值，那么此节点的最大值可能有两种情况，一种是该节点值加上不包含左子节点和右子节点的返回值之和，另一种是左右子节点返回值之和不包含当期节点值，取两者的较大值返回即可，但是这种方法无法通过OJ，超时了，所以我们必须优化这种方法，这种方法重复计算了很多地方，比如要完成一个节点的计算，就得一直找左右子节点计算，我们可以把已经算过的节点用哈希表保存起来，以后递归调用的时候，现在哈希表里找，如果存在直接返回，如果不存在，等计算出来后，保存到哈希表中再返回，这样方便以后再调用
+
+
+class Solution {
+public:
+    int rob(TreeNode* root) {
+        unordered_map<TreeNode*, int> m; //使用map减少重复计算
+        return dfs(root, m);
+    }
+    int dfs(TreeNode *root, unordered_map<TreeNode*, int> &m) {
+        if (!root) return 0;
+        if (m.count(root)) return m[root];
+        int val = 0;
+        if (root->left) {
+            val += dfs(root->left->left, m) + dfs(root->left->right, m);
+        }
+        if (root->right) {
+            val += dfs(root->right->left, m) + dfs(root->right->right, m);
+        }
+        val = max(val + root->val, dfs(root->left, m) + dfs(root->right, m));
+        m[root] = val;
+        return val;
+    }
+};
+
+第三十二、Counting Bits 计数位  
+
+题意：这道题给我们一个整数n，然我们统计从0到n每个数的二进制写法的1的个数，存入一个一维数组中返回
+
+思路： 我们可以发现每个i值都是i&(i-1)对应的值加1
+
+class Solution {
+public:
+    vector<int> countBits(int num) {
+        vector<int> res(num + 1, 0);
+        for (int i = 1; i <= num; ++i) {
+            res[i] = res[i & (i - 1)] + 1;
+        }
+        return res;
+    }
+};
+
+第三十三、 Top K Frequent Elements 前K个高频元素
+Input: nums = [1,1,1,2,2,3], k = 2
+Output: [1,2]
+
+这道题给了我们一个数组，让我们统计前k个高频的数字
+
+priority_queue<int>q;
+//通过操作，按照元素从大到小的顺序出队
+
+priority_queue<int> big;  //大根堆  
+priority_queue<Node, vector<Node>, greater<Node>> minheap; // 最小堆
+
+思路：
+   首先应该考虑用HashMap来做，建立数字和其出现次数的映射，然后再按照出现次数进行排序。我们可以用堆排序来做，
+   使用一个最大堆来按照映射次数从大到小排列，在C++中使用priority_queue来实现，默认是最大堆
+
+struct cmp {
+    bool operator() (pair *a,pair *b) {
+        return a->second > b->scond;
+    }
+};
+
+vector<int> topKFrequent(vector<int>& nums, int k) {
+    unordered_map<int, int> m;
+    priority_queue<pair<int, int> > q;
+    //priority_queue<pair<int, int>,vector<pair<int, int> >, cmp >q;
+    vector<int> res;
+    for (auto a : nums)
+        ++m[a];
+    for (auto it : m) q.push(make_pair(it.second, it.first));
+    for (int i = 0; i < k; ++i) {
+        res.push_back(q.top().second);
+        q.pop();
+    }
+    return res;
+}
+
+第三十四、Decode String 解码字符串
+   https://www.cnblogs.com/grandyang/p/5849037.html
+   s = "3[a]2[bc]", return "aaabcbc".
+   s = "3[a2[c]]", return "accaccacc".
+   s = "2[abc]3[cd]ef", return "abcabccdcdcdef".
+
+string decodeString2(string s) {
+    string res = "", t = "";
+    
+    stack<int> s_num;
+    stack<string> s_str;
+    int cnt = 0;
+
+    for (int i = 0; i < s.size(); ++i) {
+        if (s[i] >= '0' && s[i] <= '9') {
+            cnt = 10 * cnt + s[i] - '0';
+        } else if (s[i] == '[') {
+            s_num.push(cnt);
+            s_str.push(t);
+            cnt = 0; 
+            t.clear();
+        } else if (s[i] == ']') {
+            int k = s_num.top(); s_num.pop();
+            for (int j = 0; j < k; ++j) s_str.top() += t;
+            t = s_str.top(); s_str.pop();
+        } else {
+            t += s[i];
+        }
+    }
+    return t;
+}
+
+
+第三十五、 Queue Reconstruction by Height 根据高度重建队列
+
+思路：
+
+ 按照身高从大到小排序，身高相同时，按照数量从小打大排序。
+ 按照排序好的数组顺序插入到空数组中即可，原因是先插入大的元素，后插入的小元素不会影响大元素的相对位置关系，并且插入时已经保证了自身的相对位置正确
+
+注意：数量代表前面有几个人
+class Solution {
+public:
+    vector<pair<int, int>> reconstructQueue(vector<pair<int, int>>& people) {
+        sort(people.begin(), people.end(), [](const pair<int,int> &a, const pair<int, int> &b) {
+            return a.first > b.first || (a.first == b.first && a.second < b.second);
+        });
+
+        for (int i = 0; i < people.size(); i++) {
+            auto p = people[i];
+            if (p.second != i) {
+                people.erase(people.begin() + i);
+                people.insert(people.begin() + p.second, p);
+            }
+        }
+        return people;
+    }
+};
+
+
+
+第三十七、Path Sum III 二叉树的路径和之三  (非从根节点到叶子结点结束)
+
+这道题让我们求二叉树的路径的和等于一个给定值，问有几条路径
+
+  http://www.cnblogs.com/grandyang/p/6007336.html
+   方法一、
+     利用了前序遍历，对于每个遍历到的节点进行处理，维护一个变量pre来记录之前路径之和，然后cur为pre加上当前节点值，如果cur等于sum，那么返回结果时要加1，然后对当前节点的左右子节点调用递归函数求解
+
+   class Solution {
+public:
+    int pathSum(TreeNode* root, int sum) {
+        if (!root) return 0;
+        return sumUp(root, 0, sum) + pathSum(root->left, sum) + pathSum(root->right, sum);
+    }
+    int sumUp(TreeNode* node, int pre, int& sum) { //返回路径和为s的条数
+        if (!node) return 0;
+        int cur = pre + node->val;
+        return (cur == sum) + sumUp(node->left, cur, sum) + sumUp(node->right, cur, sum);
+    }
+};
+
+二叉树的路径和所有路径 从根节点到叶子结点
+
+class Solution {
+public:
+    vector<vector<int> > pathSum(TreeNode *root, int sum) {
+        vector<vector<int>> res;
+        vector<int> out;
+        helper(root, sum, out, res);
+        return res;
+    }
+    void helper(TreeNode* node, int sum, vector<int>& out, vector<vector<int>>& res) {
+        if (!node) return;
+        out.push_back(node->val);
+        if (sum == node->val && !node->left && !node->right) {
+            res.push_back(out);
+        }
+        helper(node->left, sum - node->val, out, res);
+        helper(node->right, sum - node->val, out, res);
+        out.pop_back();
+    }
+};
+
+第三十八、Find All Anagrams in a String 找出字符串中所有的变位词
+
+  Input:
+  s: "cbaebabacd" p: "abc"
+  Output:
+  [0, 6]
+  这道题给了我们两个字符串s和p，让我们在s中找字符串p的所有变位次的位置，所谓变位次就是字符种类个数均相同但是顺序可以不同的两个词
+  思路：
+     首先就要统计字符串p中字符出现的次数，然后从s的开头开始，每次找p字符串长度个字符，来验证字符个数是否相同，如果不相同出现了直接break，如果一直都相同了，则将起始位置加入结果res中
+
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        if (s.empty()) return {};
+        vector<int> res, cnt(128, 0);
+        int ns = s.size(), np = p.size(), i = 0;
+        for (char c : p) ++cnt[c];
+        while (i < ns) {
+            bool success = true;
+            vector<int> tmp = cnt;
+            for (int j = i; j < i + np; ++j) {
+                if (--tmp[s[j]] < 0) {
+                    success = false;
+                    break;
+                }
+            }
+            if (success) {
+                res.push_back(i); 
+            }
+            ++i;
+        }
+        return res;
+    }
+};
+
+第三十九、Find All Numbers Disappeared in an Array 找出数组中所有消失的数字
+这类问题的一个重要条件就是1 ≤ a[i] ≤ n (n = size of array)
+Input:
+[4,3,2,7,8,2,3,1]
+
+Output:
+[5,6]
+
+方法一、
+将nums[i]置换到其对应的位置nums[nums[i]-1]上去，比如对于没有缺失项的正确的顺序应该是[1, 2, 3, 4, 5, 6, 7, 8]，而我们现在却是[4,3,2,7,8,2,3,1]，我们需要把数字移动到正确的位置上去，比如第一个4就应该和7先交换个位置，以此类推，最后得到的顺序应该是[1, 2, 3, 4, 3, 2, 7, 8]，我们最后在对应位置检验，如果nums[i]和i+1不等，那么我们将i+1存入结果res中即可
+
+class Solution {
+public:
+    vector<int> findDisappearedNumbers(vector<int>& nums) {
+        vector<int> res;
+        
+        for (int i = 0; i < nums.size(); ++i) {
+            if (nums[i] != nums[nums[i] - 1]) {
+                swap(nums[i], nums[nums[i] - 1]);
+                --i;
+            }
+        }
+
+        for (int i = 0; i < nums.size(); ++i) {
+            if (nums[i] != i + 1) {
+                res.push_back(i + 1);
+            }
+        }
+        return res;
+    }
+};
+
+第四十一、Target Sum 目标和
+       现有一个非负整数列a1, a2, ..., an和一个期望值S。你可以为每一个整数赋一个新符号，符号从+和-两种符号中选择。计算出有多少种组合可以令赋予符号后的这些整数的和等于S
+注意本题的含义:从前到后数据都参加一次，中间添加+ 或 - 计算和
+方法一、使用迭代的方法来解，还是要用dp数组，
+class Solution {
+public:
+    int findTargetSumWays(vector<int>& nums, int S) {
+        int n = nums.size();
+        vector<unordered_map<int, int>> dp(n + 1);
+        dp[0][0] = 1;
+        for (int i = 0; i < n; ++i) {
+            for (auto &a : dp[i]) {
+                int sum = a.first, cnt = a.second;
+                dp[i + 1][sum + nums[i]] += cnt;
+                dp[i + 1][sum - nums[i]] += cnt;
+            }
+        }
+        return dp[n][S];
+    }
+};
+
+方法二、递归
+别对目标值进行加上当前数字调用递归，和减去当前数字调用递归，这样会涵盖所有情况，并且当所有数字遍历完成后，我们看若目标值为0了，
+则结果res自增1
+
+class Solution {
+public:
+    int findTargetSumWays(vector<int>& nums, int S) {
+        int res = 0;
+        helper(nums, S, 0, res);
+        return res;
+    }
+    void helper(vector<int>& nums, int S, int start, int& res) {
+        if (start >= nums.size()) {
+            if (S == 0) ++res;
+            return;
+        }
+        helper(nums, S - nums[start], start + 1, res);
+        helper(nums, S + nums[start], start + 1, res);
+    }
+};
+
+第四十二、Convert BST to Greater Tree 将二叉搜索树BST转为较大树
+
+这道题让我们将二叉搜索树转为较大树，通过题目汇总的例子可以明白，是把每个结点值加上所有比它大的结点值总和当作新的结点值
+
+思路 ：是巧妙的将中序遍历左根右的顺序逆过来，变成右根左的顺序，这样就可以反向计算累加和sum，同时更新结点值
+              5
+            /   \
+           2     13
+
+           Output: The root of a Greater Tree like this:
+             18
+            /   \
+          20     13
+
+方法一、因为中序遍历有递归和迭代两种写法，逆中序遍历同样也可以写成迭代的形式
+
+TreeNode* convertBST(TreeNode* root) {
+        if (!root) return NULL;
+        int sum = 0;
+        stack<TreeNode*> st;
+        TreeNode *p = root;
+        while (p || !st.empty()) {
+            while (p) {
+                st.push(p);
+                p = p->right;
+            }
+            p = st.top(); st.pop();
+            p->val += sum;
+            sum = p->val;
+            p = p->left;
+        }
+        return root;
+    }
+方法二、
+class Solution {
+public:
+    TreeNode* convertBST(TreeNode* root) {
+        int sum = 0;
+        helper(root, sum);
+        return root;
+    }
+    void helper(TreeNode*& node, int& sum) {
+        if (!node) return;
+        helper(node->right, sum);
+        node->val += sum;
+        sum = node->val;
+        helper(node->left, sum);
+    }
+};
+
+第四十三、Diameter of Binary Tree 二叉树的直径
+
+是不是其实就是根结点1的左右两个子树的深度之和呢。那么我们只要对每一个结点求出其左右子树深度之和，这个值作为一个候选值，然后再对左右子结点分别调用求直径对递归函数，这三个值相互比较，取最大的值更新结果res，因为直径不一定会经过根结点，所以才要对左右子结点再分别算一次。为了减少重复计算，我们用哈希表建立每个结点和其深度之间的映射，这样某个结点的深度之前计算过了，就不用再次计算了
+
+方法一：递归
+
+class Solution {
+public:
+    int diameterOfBinaryTree(TreeNode* root) { //直径就是 左子树和右子树深度和
+        int res = 0;
+        maxDepth(root, res);
+        return res;
+    }
+    int maxDepth(TreeNode* node, int& res) {
+        if (!node) return 0;
+        int left = maxDepth(node->left, res);
+        int right = maxDepth(node->right, res);
+        res = max(res, left + right);
+        return max(left, right) + 1;
+    }
+};
+
+第四十四、Subarray Sum Equals K 子数组和为K 
+Input:nums = [1,1,1], k = 2
+Output: 2
+ 题意：这道题给了我们一个数组，让我们求和为k的连续子数组的个数
+
+注意：连续数组和
+
+思路： 用一个哈希表来建立连续子数组之和跟其出现次数之间的映射，初始化要加入{0,1}这对映射，这是为啥呢，因为我们的解题思路是遍历数组中的数字，用sum来记录到当前位置的累加和，我们建立哈希表的目的是为了让我们可以快速的查找sum-k是否存在，即是否有连续子数组的和为sum-k，如果存在的话，那么和为k的子数组一定也存在，这样当sum刚好为k的时候，那么数组从起始到当前位置的这段子数组的和就是k，满足题意，如果哈希表中事先没有m[0]项的话，这个符合题意的结果就无法累加到结果res中，这就是初始化的用途
+
+   class Solution {
+public:
+    int subarraySum(vector<int>& nums, int k) {
+        int res = 0, sum = 0, n = nums.size();
+        unordered_map<int, int> m{{0, 1}};
+        for (int i = 0; i < n; ++i) {
+            sum += nums[i];
+            res += m[sum - k]; //如果m[sum-k]>0说明数组有l = sum - k,两个相减就可以为0
+            ++m[sum]; 
+        }
+        return res;
+    }
+};
+
+第四十五、Subtree of Another Tree 另一个树的子树
+
+思路：
+这道题让我们求一个数是否是另一个树的子树，从题目中的第二个例子中可以看出，子树必须是从叶结点开始的，中间某个部分的不能算是子树，那么我们转换一下思路，是不是从s的某个结点开始，跟t的所有结构都一样，那么问题就转换成了判断两棵树是否相同，也就是Same Tree的问题了，这点想通了其实代码就很好写了，用递归来写十分的简洁，我们先从s的根结点开始，跟t比较，如果两棵树完全相同，那么返回true，否则就分别对s的左子结点和右子结点调用递归再次来判断是否相同，只要有一个返回true了，就表示可以找得到
+
+
+class Solution {
+public:
+    bool isSubtree(TreeNode* s, TreeNode* t) {
+        if (!s) return false;
+        if (isSame(s, t)) return true;
+          //左右子树里面可能含有相同的结构
+        return isSubtree(s->left, t) || isSubtree(s->right, t);
+    }
+    bool isSame(TreeNode* s, TreeNode* t) {
+        if (!s && !t) return true;
+        if (!s || !t) return false;
+        if (s->val != t->val) return false; //子结构必须值相等
+        return isSame(s->left, t->left) && isSame(s->right, t->right);
+    }
+};
+ 
+
+
+1.找数组中只出现一次的元素，借此问了map，unordered_map的底层和复杂度
+2.数组的最长递增子序列的长度
+一个数组[1,2,3,4...n]的所有子集
+作者：obitosbb
+链接：https://www.nowcoder.com/discuss/507994
+来源：牛客网
+
+、socket
+4、协议：http、https、http1.0和http2.0，还有一个我不认识的协议，照顾性的问了我个get和post
+
+7、访问一个国外网站的过程如何提升访问速度（说了硬件方面，我觉得面试官更想听软件的方面）
+1. 快排复杂度推导
+2. dfs和bfs原理区别，需要用到的数据结构
+编程题
+1. 实现二叉树dfs，要求空间复杂度尽可能低
+2. 添加节点到满二叉树。层次遍历复杂度太高，需要二分优化
+
+作者：LeungKamHung
+链接：https://www.nowcoder.com/discuss/282253
+来源：牛客网
+
+1、TCP和UDP的区别和使用场景；
+
+2、iOS中属性weak底层实现原理和使用场景；
+
+3、block的底层实现和使用注意事项；
+
+4、随机数的计算机实现方式原理，真随机还是伪随机；
+
+实现方式原理：
+
+5、runtime和runloop的基本概念理解；
+
+6、NSTimer和CADisplaylink的区别；
+
+7、iOS的反射机制是怎么实现的；
+
+
+
+
+算法基础：
+
+
+Q1、什么是稳定排序？时间复杂度的定义是什么？
+
+Q2、O(n^2)算法是否一定比O(nlogn）的算法更快？
+
+Q3、堆和优先队列有什么区别？什么是堆排序、最大堆、最小堆？
+
+Q4、什么是二分搜索树？什么是平衡二分搜索树？常见的平衡二分搜索树有那几种？AVL树、B树、红黑树有什么区别？
+
+
+算法实现：三选一
+
+
+
+Q2:算法题:如何计算x^n?
+
+算法思路：二选一
+
+
+Q1:数学题:给一个棍子，随机砍两刀，组成一个三角形的概率是多少?
+
+Q2:有1000个一模一样的瓶子，其中有999瓶是普通的水，有1瓶是毒药。任何喝下毒药的生命都会在一星期之后死亡。现在你只有10只小白鼠和1个星期的时间，如何检验出哪个瓶子有毒药？
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

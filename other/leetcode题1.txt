@@ -1,0 +1,982 @@
+
+1、使用队列实现栈
+    
+    class MyStack {
+         public:
+          MyStack() {}
+         void push(int x) {
+              std::queue<int> temp_queue;
+              temp_queue.push(x);
+              while(!_data.empty()){
+                temp_queue.push(_data.front());
+                _data.pop();
+              }
+
+              while(!temp_queue.empty()){
+                _data.push(temp_queue.front());
+                temp_queue.pop();
+              }
+            }
+        int pop() {
+              int x = _data.front();
+              _data.pop();
+              return x;
+         }
+
+       int top() {
+              return _data.front();
+            }
+
+       bool empty() {
+             return _data.empty();
+       }
+       private:
+         std::queue<int> _data;
+       };
+
+
+2、使用栈实现队列
+
+  class MyQueue {
+        public:
+          
+          MyQueue() {}
+
+          void push(int x) {
+               std::stack<int> temp_stack;
+               while(!_data.empty()){
+                temp_stack.push(_data.top());
+                _data.pop();
+              }
+               temp_stack.push(x);
+               while(!temp_stack.empty()){
+                _data.push(temp_stack.top());
+                temp_stack.pop();
+              }
+            }
+
+          int pop() {
+             int x = _data.top();
+             _data.pop();
+             return x;
+          }
+
+          int peek() {
+            return _data.top();
+          }
+
+         bool empty() {
+          return _data.empty();
+        }
+      private:
+          std::stack<int> _data;
+};
+
+  3、找出数组中第K大或者是第K小的数（利用快速排序)
+    
+     思路：
+     
+     快速排序一趟之后，主元pivot到了他最终应该在的位置，如果是从小到大排序，那么一趟排序之后，他左边的数都是比它小的，他右边的数都是比它大的数，
+     所以，如果我们要找出第K小的数，我们可以在一趟排序后，检查主元的位置和K是否对应
+     if（pos+1 == k），因为下标是从0开始的，所以要加1。如果相等的话，就正好是要找的第K小的数，
+     否则，if(pos+1>k)，说明要找的数在主元的左边，我们就只需要对左边继续进行快排，这样可以节约时间。
+     if(pos+1<k)，就说明要找的数是在主元的右半部分。
+     
+     同理：找第K大的数时，就是把数组从大到小来排，只需要在划分子集的函数中，将大于小于号调换一下
+
+      //从小到大排序
+
+int  quickOnceSort(vector<int>&vec,int left,int right){
+    int minKey = left;
+    int pointResult = vec[left];
+    while (left < right) {
+        while (left <right && vec[right] >= pointResult) {
+            right--;
+        }
+        while (left < right && vec[left] <= pointResult) {
+            left++;
+        }
+        swapVec(vec, left, right);
+    }
+    swapVec(vec, left, minKey);
+    return left;
+}
+      
+//调用从小到大排序的分割法，来找出第K小的数
+int find_small_thk(vector<int> &vec, int thk) {
+    int left = 0;
+    int right = (int)vec.size() - 1;
+    int thK = thk -1;
+    int point = quickOnceSort(vec, left, right);
+    while (point!= thK) {
+        if (point >thK) {
+            point = quickOnceSort(vec, left, point - 1);
+        } else {
+            point = quickOnceSort(vec, point + 1, right);
+        }
+    }
+    return  vec[thK];
+}
+
+
+  4、最近的公共祖先
+     已知二叉树，求二叉树中给定的两个节点的最近公共祖先
+     
+     根节点至某个节点路径实现
+     void preorder(TreeNode* node,                 //正在遍历的根节点
+                   TreeNode *search,               //待搜索的节点
+                   std::vector<TreeNode*> &path,   //遍历时的节点路径栈
+                   std::vector<TreeNode*> &result, //最终搜索到节点的路径
+                   int &finish) {     //记录是否站到节点的标志
+         if (!node || finish){
+          return;
+         }
+         path.push_back(node);
+         if(node == search){
+            finish = 1;
+            result = path;
+        }
+        preorder(node->left, search, path, result, finish);
+        preorder(node->right, search, path, result, finish);
+        path.pop_back();
+      }
+
+      class Solution {
+           public:
+               TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+
+                std::vector<TreeNode*> path;
+                std::vector<TreeNode*> node_p_path;
+                std::vector<TreeNode*> node_q_path;
+
+                int finish = 0;
+                preorder(root, p, path, node_p_path, finish);
+                path.clear();
+                
+                finish = 0;
+                preorder(root, q, path, node_q_path, finish);        
+                int path_len = 0;
+                if (node_p_path.size() < node_q_path.size()){
+                  path_len = node_p_path.size();
+                }else{
+                  path_len = node_q_path.size();
+                }
+               
+               TreeNode *result = NULL;
+               for (int i = 0; i < path_len; i++){
+                if (node_p_path[i] == node_q_path[i]){
+                  result = node_p_path[i];
+                }
+              }
+              return result;
+            }
+          };
+
+  5、侧面观察二叉树
+
+     思路：分层遍历，记录每层最后的一个节点
+
+vector<TreeNode *>TestTreeMethod::rightSideSearchTree(TreeNode *tree) {
+    vector<TreeNode *>nodeVec;
+    deque<TreeNode *>q;
+    q.push_back(tree);
+    while (!q.empty()) {
+        int size = (int)q.size();
+        for (int i = 0; i < size; i++) {
+            TreeNode *node = q.front();
+            q.pop_front();
+            if (node->left) {
+                q.push_back(node->left);
+            }
+            if (node->right) {
+                q.push_back(node->right);
+            }
+            if (i == (size - 1)) {
+                nodeVec.push_back(node);
+            }
+        }
+    }
+    return nodeVec;
+}
+
+ 6、 插入位置
+       给定一个排序数组nums(无重复元素)与目标值target，如果target在nums里 出现，则返回target所在下标，如果target在nums里未出现，
+       则返回target应该 插入位置的数组下标，使得将target插入数组nums后，数组仍有序
+    
+      思路：
+            设元素所在的位置(或最终需要插入的位置)为index， 在二分查找的过程中:
+            如果target == nums[mid]:index = mid;
+            如果target < nums[mid]，且 (mid == 0或 target > nums[mid-1]):
+            index = mid;
+            如果target > nums[mid]，且 (mid == nums.size() – 1 或 target < nums[mid+1]):
+            index = mid + 1;
+
+class Solution {
+   public:
+   
+    int searchInsertPosOrExistPosInArray(vector<int> &vec, int target) {
+        
+        int left = 0,pos = -1;
+        int right = (int)vec.size() - 1;
+        while (left < right) {
+            int middle = (left + right)/2;
+            if (vec[middle] == target) {
+                pos = middle;
+                break;
+            }else if(target > vec[middle]){
+                if (middle == (vec.size() - 1)||vec[middle+1] > target) {
+                    pos = middle +1;
+                    break;
+                }else {
+                    left = middle + 1;
+                }
+            }else {
+                if (middle == 0 || vec[middle - 1] < target) {
+                    pos = middle;
+                    break;
+                }else {
+                    right = middle - 1;
+                }
+            }
+        }
+        return pos;
+    }
+}
+
+  7、区间查找
+      给定一个排序数组nums(nums中有重复元素)与目标值target，如果 target在nums里出现，则返回target所在区间的左右端点下标，
+      [左端点, 右端点]，如果target在nums里未出现，则返回[-1, -1]。
+
+     思路：
+        查找区间左端点时，增加如下限制条件:
+        当target == nums[mid]时，若此时mid == 0或nums[mid-1] < target，则说明mid即
+        为区间左端点，返回;否则设置区间右端点为mid-1。
+
+        查找区间右端点时，增加如下限制条件:
+        当target == nums[mid]时，若此时mid == nums.size() – 1或 nums[mid + 1] > target，
+        则说明mid即为区间右端点;否则设置区间左端点为mid + 1
+
+int left_bound(std::vector<int>& nums, int target){
+  int begin = 0;
+  int end = nums.size() - 1;
+  while(begin <= end){
+    int mid = (begin + end) / 2;
+    if (target == nums[mid]){
+      if (mid == 0 || nums[mid -1] < target){
+        return mid;
+      }
+      end = mid - 1;
+    }
+    else if (target < nums[mid]){
+      end = mid - 1;
+    }
+    else if (target > nums[mid]){
+      begin = mid + 1;
+    }
+  }
+  return -1;
+}
+
+int right_bound(std::vector<int>& nums, int target){
+  int begin = 0;
+  int end = nums.size() - 1;
+  while(begin <= end){
+    int mid = (begin + end) / 2;
+    if (target == nums[mid]){
+      if (mid == nums.size() - 1 || nums[mid + 1] > target){
+        return mid;
+      }
+      begin = mid + 1;
+    }
+    else if (target < nums[mid]){
+      end = mid - 1;
+    }
+    else if (target > nums[mid]){
+      begin = mid + 1;
+    }
+  }
+  return -1;
+}
+
+class Solution {
+public:
+    std::vector<int> searchRange(std::vector<int>& nums, int target) {
+        std::vector<int> result;
+        result.push_back(left_bound(nums, target));
+        result.push_back(right_bound(nums, target));
+        return result;
+    }
+};
+
+   8、二叉查找树插入节点
+
+      二叉查找树(Binary Search Tree), 它是一颗具有下列性质的二叉树: 
+      a若左子树不空，则左子树上所有结点的值均小于或等于它的根结点的值; 
+      b若右子树不空，则右子树上所有结点的值均大于或等于它的根结点的值; 
+      c左、右子树也分别为二叉排序树。 
+      d等于的情况只能出现在左子树或右子树中的某一侧
+     
+      将某节点(insert_node)，插入至以node为根二叉查找树中: 如果 insert_node节点值 小于 当前node节点值:
+      如果node有左子树，则递归的将该节点插入至左子树为根二叉排序树中
+      否则，将node->left赋值为该节点地址 否则(大于等于情况):
+      如果node有右子树，则递归的将该节点插入至右子树为根二叉排序树中 否则，将node->right赋值为该节点地址
+ 
+
+void BST_insert(TreeNode *node, TreeNode *insert_node){
+  if (insert_node->val < node->val){
+    if (node->left){
+      BST_insert(node->left, insert_node);
+    }
+    else{
+      node->left = insert_node;
+    }
+  }
+  else{
+    if (node->right){
+      BST_insert(node->right, insert_node);
+    }
+    else{
+      node->right = insert_node;
+    }
+  }
+}
+   
+  9、二叉查找树查找数值
+     查找数值value是否在二叉查找树中出现: 如果 value 等于当前查看node的节点值: 返回真 如果 value节点值 小于 当前node节点值:
+     如果当前节点有左子树，继续在左子树中查找该值;否则，返回假 否则(value节点值 大于 当前node节点值):
+     如果当前节点有右子树，继续在右子树中查找该值;否则，返回假
+
+
+bool BST_search(TreeNode *node, int value){
+  if (node->val == value){
+    return true;
+  }
+  if (value < node->val){
+    if (node->left){
+        return BST_search(node->left, value);
+    }
+    else{
+        return false;
+    }
+  }
+  else{
+    if (node->right){
+       return BST_search(node->right, value);
+    }
+    else{
+       return false;
+    }
+  }
+}
+
+
+
+10、二叉查找树编码和解码 ?????
+
+      给定一个二叉查找树，实现对该二叉查找树编码与解码功能。编码即将该二叉查找树转为字符串，解码即将字符串转为二叉查找树。不限制使用何种编码算法 ，
+      只需保证当对二叉查找树调用编码功能后可再调用解码功能将其复原
+      
+
+      a.二叉查找树编码为字符串: 将二叉查找树前序遍历，遍历时将整型的数据转为字符串，并将 这些字符串数据进行连接，连接时使用特殊符号分隔
+        比如： 
+             8# 
+             8#7#
+             8#7#9#
+      b.将字符串解码为二叉查找树:
+        将字符串按照编码时的分隔符”#” ，将各个数字逐个拆分出来，将第 一个数字构建为二叉查找树的根节点，
+        后面各个数字构建出的节点按解析时的顺序插入根节点中，返回根节点，即完成了解码工作 
+
+//插入节点
+void BST_insert(TreeNode *node, TreeNode *insert_node){
+  if (insert_node->val < node->val){
+    if (node->left){
+      BST_insert(node->left, insert_node);
+    }
+    else{
+      node->left = insert_node;
+    }
+  }
+  else{
+    if (node->right){
+      BST_insert(node->right, insert_node);
+    }
+    else{
+      node->right = insert_node;
+    }
+  }
+}
+
+void change_int_to_string(int val, std::string &str_val){
+  std::string tmp;
+  while(val){
+    tmp += val % 10 + '0';
+    val = val / 10;
+  }
+  for (int i = tmp.length() - 1; i >= 0; i--){
+    str_val += tmp[i];
+  }
+  str_val += '#';
+}
+
+//前序遍历
+void BST_preorder(TreeNode *node, std::string &data){
+  if (!node){
+    return;
+  }
+  std::string str_val;
+  change_int_to_string(node->val, str_val);
+  data += str_val;
+  BST_preorder(node->left, data);
+  BST_preorder(node->right, data);
+}
+
+class Codec {
+  public:
+    //编码
+    std::string serialize(TreeNode* root) {
+      std::string data;
+        BST_preorder(root, data);
+        return data;
+    }
+
+    //解码
+    TreeNode *deserialize(std::string data) {
+      if (data.length() == 0){
+        return NULL;
+      }
+      std::vector<TreeNode *> node_vec;
+      int val = 0;
+      for (int i = 0; i < data.length(); i++){
+        if (data[i] == '#'){
+          node_vec.push_back(new TreeNode(val));
+          val = 0;
+        }
+        else{
+          val = val * 10 + data[i] - '0';
+        }
+      }
+      for (int i = 1; i < node_vec.size(); i++){
+        BST_insert(node_vec[0], node_vec[i]);
+      }
+      return node_vec[0];
+    }
+};
+   
+11、求两个有序数组的交集
+    问题： 给你两个排序的数组，求两个数组的交集。
+    比如： A = 1 3 4 5 7， B = 2 3 5 8 9， 那么交集就是 3 5.
+
+    vector<int>twoOrderArrayIntersection(vector<int> &vec1, vector<int> &vec2) {
+    unorder_set <int>resultVec;
+    int len1 = (int)vec1.size();
+    int len2 = (int)vec2.size();
+    int i = 0,j =0;
+    while (i < len1 && j  < len2) {
+        if (vec1[i] < vec2[j]) {
+            i++;
+        }else if (vec1[i] == vec2[j]){
+            resultVec.insert(vec1[i]);
+            i++;
+            j++;
+        } else {
+            j++;
+        }
+    }
+    return resultVec;
+}
+
+12、查找两个字符串公共的字符串
+
+string findLongestSameSubStrBetweenABString(string strA, string strB) {
+    
+    int lenA = (int)strA.length();
+    int lenB = (int)strB.length();
+    int start1 = -1,start2 = -1;
+    int startPos = -1;
+    int maxLen = 0;
+    for (int i = 0; i < lenA; i++) {
+        for (int j = 0; j < lenB; j++) {
+            start1 = i;
+            start2 = j;
+            while (strA[start1] == strB[start2] && start1<lenA && start2<lenB) {
+                start1++;
+                start2++;
+            }
+            if (start1 > i) {
+                if ((start1 - i + 1) > maxLen) {
+                    maxLen = start1 - i ;
+                    startPos = i;
+                }
+            }
+        }
+    }
+
+    return maxLen>0? strA.substr(startPos,maxLen) : "";
+}
+
+
+13、删除数组中某个数
+
+int removeElement(vector<int>& nums, int val) {
+    int res = 0;
+    for (int i = 0; i < nums.size(); ++i) {
+        if (nums[i] != val) {
+            nums[res] = nums[i];
+            res++;
+        }
+    }
+    return res;
+}
+
+14、 两大数相加
+ //字符串输出防止大数溢出
+ string twoLargeNumAdd(string &str1,  string &str2) {
+     string res = "";
+     int longestLen = str1.length() > str2.length() ? (int)str1.length() : (int)str2.length();
+     int intervalLen = str1.length() > str2.length()? ((int)str1.length() - (int)str2.length()) : ((int)str2.length() - (int)str1.length());
+     //同步两个大数位置一致，短的字符串前面用0补齐
+     string str = "";
+     for (int i = 0; i< intervalLen; i++) {
+         str+='0';
+     }
+     if (str1.length() > str2.length()) {
+         str2 = str +str2;
+     } else {
+         str1 = str +str1;
+     }
+     int value = 0,carry = 0;
+     longestLen--;
+     while (longestLen >= 0) {
+         value = (str1[longestLen] - '0' ) + (str2[longestLen] - '0') + carry;
+         carry = value/10;
+         value = value%10;
+         res = to_string(value) + res;
+         longestLen--;
+     }
+     if (carry > 0) {
+         res = to_string(carry) + res;
+     }
+     return res;
+ }
+
+15、IP地址解析
+    input = "233089102"
+
+    void divideIpAddress(string &str, int insertPos, int count,vector<string>&res) {
+        if(count > 3){//3个.才行
+            return;
+        }
+        if(count == 3 && isIPv4(str)) {
+            res.push_back(str);
+            return;
+        }
+        for(int i = insertPos; i < str.size(); ++i) {
+            str.insert(i,".");
+            divideIpAddress(str,insertPos + 2,count+1,res);//插入后，至少向后移动2个位置再插入新的.
+            str.erase(i,1);//回溯，删除1个字符 .
+        }
+    }
+    
+    vector<string> restoreIpAddresses(string str) {
+        vector<string> res;
+        if(str.size() < 4 || str.size() > 12)
+            return res;
+        divideIpAddress(str,1,0,res);//从第一个字符后面开始插入
+        return res;
+    }
+    
+    bool isIPv4(string &IP) {
+        vector<string> part;
+        splictStr(IP, part);
+        int s, i;
+        for(auto p : part) {
+            s = 0;
+            if(p == "" || (p[0] == '0' && p.size()!= 1))    //不能有前置0
+                return false;
+            for(i = 0; i < p.size(); ++i) {
+                if(p[i] > '9'|| p[i]<'0') {
+                    return false;
+                }
+                s = s*10+p[i]-'0';
+                if(s > 255){ //数字不能超范围
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    void splictStr(string str, vector<string>&vec){
+        string p="";
+        for (int i = 0; i<str.length(); i++) {
+            if (str[i] == '.'||(i == (str.length() - 1))) {
+                if (i == (str.length() - 1)) {
+                    p+=str[i];
+                }
+                vec.push_back(p);
+                p = "";
+            }else{
+                p+=str[i];
+            }
+        }
+    }
+        
+第十六、Linked List Cycle II
+            一个链表中包含环，请找出该链表的环的入口结点
+          https://blog.csdn.net/kongmin_123/article/details/82313198
+
+          /*
+           1.定义快慢指针，找到相遇节点；
+           2.计算环的长度length；
+           3.在定义快慢指针，先让快指针走length步，在让慢指针走。直到两个指针相等时，即为入口节点；
+           复杂度为O(n);
+           */
+           class Solution {
+                public:
+                   ListNode* EntryNodeOfLoop(ListNode* pHead) {
+
+           ListNode *meetNode = meetingNode(pHead);
+           if(meetNode == nullptr)
+               return nullptr;
+    
+           int loopLength=1;
+           ListNode *pNode1 = meetNode->next;
+           while(pNode1 != meetNode)
+           {
+               ++ loopLength;
+               pNode1 = pNode1->next;
+           }
+           pNode1 = pHead;
+           ListNode *pNode2 = pHead;
+    
+           for(int i=0; i<loopLength; i++)
+               pNode1 = pNode1->next;
+    
+           while(pNode1 != pNode2)
+           {
+               pNode1 = pNode1->next;
+               pNode2 = pNode2->next;
+           }
+           return pNode1;
+         }
+    
+       ListNode* meetingNode(ListNode *pHead) {
+           if(pHead == nullptr)
+               return nullptr;
+    
+           ListNode *pSlow = pHead->next;
+           if(pSlow == nullptr)
+               return nullptr;
+    
+           ListNode *pFast = pSlow->next;
+           while(pFast != nullptr && pSlow != nullptr) {
+               if(pFast == pSlow)
+                   return pFast;
+               pSlow = pSlow->next;
+               pFast = pFast->next;
+               if(pFast != nullptr)
+                   pFast = pFast->next;
+           }
+           return nullptr;
+       }
+     }
+
+第十七、 Kth Largest Element in an Array  数组中第k大的数字
+      
+      方法一、当然首先想到的是给数组排序，然后求可以得到第k大的数字
+      class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end());
+        return nums[nums.size() - k];
+    }
+};
+    方法二、 快速排序和二分法
+
+
+    class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        int left = 0, right = nums.size() - 1;
+        while (true) {
+            int pos = partition(nums, left, right);
+            if (pos == k - 1) return nums[pos];
+            else if (pos > k - 1) right = pos - 1;
+            else left = pos + 1;
+        }
+    }
+    int partition(vector<int>& nums, int left, int right) {
+        int pivot = nums[left], l = left + 1, r = right;
+        while (l <= r) {
+            if (nums[l] < pivot && nums[r] > pivot) {
+                swap(nums[l++], nums[r--]);
+            }
+            if (nums[l] >= pivot) ++l;
+            if (nums[r] <= pivot) --r;
+        }
+        swap(nums[left], nums[r]);
+        return r;
+    }
+};
+
+第十八、Sliding Window Maximum 滑动窗口最大值
+
+第十九、Search a 2D Matrix II
+       这道题让我们在一个二维数组中快速的搜索的一个数字，这个二维数组各行各列都是按递增顺序排列的
+       分治法：
+
+     class Solution {
+public:
+    bool searchMatrix(vector<vector<int> >& matrix, int target) {
+        if(matrix.size() == 0) return false;
+        int i,j,rows = matrix.size(),cols = matrix[0].size();
+
+        i = 0;
+        j = cols-1;
+        while(i < rows && j >= 0)
+        {
+            if(matrix[i][j] == target) return true;
+            else if(matrix[i][j] > target) j--;
+            else i++;
+        }
+        return false;
+    }
+};
+
+第二十、Hamming Distance 汉明距离
+
+思路：
+两个数字之间的汉明距离就是其二进制数对应位不同的个数，那么最直接了当的做法就是按位分别取出两个数对应位上的数并异或，我们知道异或的性质上相同的为0，不同的为1，我们只要把为1的情况累加起来就是汉明距离了
+
+class Solution {
+public:
+    int hammingDistance(int x, int y) {
+        int res = 0, exc = x ^ y;
+        for (int i = 0; i < 32; ++i) {
+            res += (exc >> i) & 1;
+        }
+        return res;
+    }
+};
+
+第二十一、Merge Two Binary Trees 合并二叉树
+
+直接递归调用给定的函数即可，我们首先判断，如果t1不存在，则直接返回t2，反之，如果t2不存在，则直接返回t1。如果上面两种情况都不满足，那么以t1和t2的结点值之和建立新结点t，然后对t1和t2的左子结点调用递归并赋给t的左子结点，再对t1和t2的右子结点调用递归并赋给t的右子结点，返回t结点即可
+
+ class Solution {
+public:
+    TreeNode* mergeTrees(TreeNode* t1, TreeNode* t2) {
+        if (!t1) return t2;
+        if (!t2) return t1;
+        TreeNode *t = new TreeNode(t1->val + t2->val);
+        t->left = mergeTrees(t1->left, t2->left);
+        t->right = mergeTrees(t1->right, t2->right);
+        return t;
+    }
+};
+
+
+第二十二、Intersection of Two Linked Lists 求两个链表的交点
+    
+    思路：
+         1、分别遍历两个链表，得到分别对应的长度。
+         2、然后求长度的差值，把较长的那个链表向后移动这个差值的个数，
+         3、然后一一比较即可
+
+     class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        if (!headA || !headB) return NULL;
+        int lenA = getLength(headA), lenB = getLength(headB);
+        if (lenA < lenB) {
+            for (int i = 0; i < lenB - lenA; ++i) headB = headB->next;
+        } else {
+            for (int i = 0; i < lenA - lenB; ++i) headA = headA->next;
+        }
+        while (headA && headB && headA != headB) {
+            headA = headA->next;
+            headB = headB->next;
+        }
+        return (headA && headB) ? headA : NULL;
+    }
+    int getLength(ListNode* head) {
+        int cnt = 0;
+        while (head) {
+            ++cnt;
+            head = head->next;
+        }
+        return cnt;
+    }
+};
+
+第二十三、 Majority Element 求大多数
+     
+     Input: [2,2,1,1,1,2,2]
+     Output: 2
+
+     class Solution {
+public:
+    int majorityElement(vector<int>& nums) {
+        int res = 0, cnt = 0;
+        for (int num : nums) {
+            if (cnt == 0)
+            {
+               res = num;
+               ++cnt;
+            }
+            else  {
+              (num == res) ? ++cnt : --cnt;
+            }
+        }
+        return res;
+    }
+};
+
+第二十三、 和为S的连续正数序列
+         输入一个正整数 target ，输出所有和为 target 的连续正整数序列（至少含有两个数)
+         输入：target = 9
+         输出：[[2,3,4],[4,5]]
+         
+vector<vector<int>>TestDoublePointerMethod::findContinuousSequence(int S) {
+             vector<vector<int>>res;
+             int left = 1,right = 2;
+             for ( ; left < right; ) {
+                 int sum = (left + right) *(right - left +1)/2;
+                 if (sum == S) {
+                     vector<int>vec;
+                     for (int j = left; j <= right; j++) {
+                         vec.push_back(j);
+                     }
+                     res.push_back(vec);
+                     left++;
+                 }else if (sum > S) {
+                     left++;
+                 }else {
+                     right++;
+                 }
+             }
+             return res;
+         }
+
+第二十四、k个一组翻转链表
+
+  class Solution {
+  public:
+       ListNode* reverseKGroup(ListNode* head, int k) {
+        ListNode *cur = head;
+           for (int i = 0; i < k; ++i) {
+               if (!cur) return head;
+               cur = cur->next;
+           }
+           ListNode *new_head = reverse(head, cur);
+          head->next = reverseKGroup(cur, k);
+          return new_head;
+      }
+    ListNode* reverse(ListNode* head, ListNode* tail) {
+          ListNode *pre = tail;
+          while (head != tail) {
+              ListNode *t = head->next;
+              head->next = pre;
+              pre = head;
+              head = t;
+          }
+          return pre;
+      }
+  };
+
+第二十五、x的n次方
+
+int x_power_y1(int x,int n) {
+    int temp=1;
+    for(int i=0; i<n; i++) {
+      temp=temp*x;
+    }
+    return temp;
+}
+
+第二十六、单向链表节点的奇偶排序(单向链表奇偶节点拆分与排序)
+     思路: 
+        将奇偶节点拆分
+        偶数节点链表链表反转
+        两个有序链表合并
+ 
+// 递归版本的链表反转
+ListNode* ReverseList(ListNode* head) {
+ 
+  if (nullptr == head)
+    return nullptr;
+ 
+  if (nullptr == head->next)
+    return head;
+ 
+  ListNode* newHead = ReverseList(head->next);
+  head->next->next = head;
+  head->next = nullptr;
+ 
+  return newHead;
+}
+ 
+// 合并两个有序链表
+ListNode* mergeList(ListNode* l1, ListNode* l2) {
+ 
+  if (nullptr == l1)
+    return l2;
+ 
+  if (nullptr == l2)
+    return l1;
+ 
+  ListNode* newhead = new ListNode(0);
+  ListNode*next = newhead;
+ 
+  while (nullptr != l1 && nullptr != l2) {
+ 
+    if (l1->val <= l2->val) {
+ 
+      next->next = l1;
+      l1 = l1->next;
+    }
+    else {
+      next->next = l2;
+      l2 = l2->next;
+    }
+    next = next->next;
+  }
+ 
+  next->next = nullptr != l1 ? l1 : l2;
+  ListNode* p = newhead;
+  delete p;// 需要释放开辟的临时内存
+ 
+  newhead = newhead->next;
+  return newhead;
+}
+ 
+// 链表的奇偶拆分，头节点指定为1，为奇数节点
+// 这里假定奇数为升序，偶数为降序
+ListNode* SplitList(ListNode* head) {
+ 
+  if (nullptr == head)
+     return head;
+  // 奇偶链表分离
+  ListNode *h1 = head;        //奇数链表
+  ListNode *h2 = head->next;  //偶数链表
+  ListNode *p2 = h2;
+  while (nullptr != h1 && nullptr != h2) {
+ 
+    h1->next = h2->next;
+    h1 = h1->next;
+    h2->next = nullptr != h1 ? h1->next : nullptr;
+    h2 = h2->next;
+  }
+ 
+  h1 = head;
+  h2 = p2;
+ 
+  // 对偶数链表做一个逆序
+  h2 = ReverseList(h2);
+ 
+  // 最后对两个升序链表进行一个合并
+  return mergeList(h1, h2);
+}
+
+
+

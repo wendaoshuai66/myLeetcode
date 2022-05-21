@@ -1,0 +1,6 @@
+.winter {
+    display: flex;
+     /* @if SYSTEM='CN' */
+    background: url('https://statics-cdn-cn.umucdn.cn/statics/emoji/qq-emoji-hd.png') no-repeat;
+    /* @endif */
+}

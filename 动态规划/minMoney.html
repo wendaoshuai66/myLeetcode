@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    兑换零钱意思就是 [1,2,5] 11 从数组里找到最少等于11的数组 例如： 5 + 5 + 1 =1 答案就是3
+    那思路就是 min(minMoney([1,2,5],10) minMoney([1,2,5],12) minMoney([1,2,5],15))+1 的递归
+    <script>
+        function minMoney(arr, aim) {
+            if (aim === 0) {
+                return 0;
+            }
+            if (aim < 0) {
+                return -1;
+            }
+            var res = Number.MAX_SAFE_INTEGER;
+            for (const item of arr) {
+                // 拿到值
+                let sub = minMoney(arr, (aim - item))
+                if (sub === -1) {
+                    continue;
+                }
+                res = Math.min(res, sub + 1);
+            }
+            return res === Number.MAX_SAFE_INTEGER ? -1 : res;
+        }
+    </script>
+    优化1 添加备忘录
+    <script>
+        let memo = {};
+        function minMoney1(arr, aim) {
+            if (aim === 0) {
+                return 0;
+            }
+            if (aim < 0) {
+                return -1;
+            }
+            if (memo[i]) {
+                return memo[i]
+            }
+            var res = Number.MAX_SAFE_INTEGER;
+            for (const item of arr) {
+                // 拿到值
+                let sub = minMoney(arr, (aim - item))
+                if (sub === -1) {
+                    continue;
+                }
+                res = Math.min(res, sub + 1);
+            }
+            memo[aim] = res === Number.MAX_SAFE_INTEGER ? -1 : res;
+            return memo[aim]
+        }
+    </script>
+    优化2 状态转移
+    <script>
+        function minMoney2(arr, aim) {
+            var memo = {};
+            for (let i = 0; i <= aim; i++) {
+                memo[i] = (aim + 1);
+            }
+            memo[0] = 0;
+            for (let i = 0; i <= aim; i++) {
+                for (let j = 0; j < arr.length; j++) {
+                    if (i - arr[j] < 0) continue;
+                    memo[i] = Math.min(memo[i], 1 + memo[i - arr[j]])
+                }
+            }
+            return (memo[aim] === (aim + 1)) ? -1 : memo[aim]
+        }
+    </script>
+</body>
+
+</html>

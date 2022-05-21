@@ -1,0 +1,700 @@
+剑指offer题目及答案
+    https://blog.csdn.net/XiufengWu/article/details/79515974
+
+1、跳台阶
+  一只青蛙一次可以跳上1级台阶，也可以跳上2级。求该青蛙跳上一个n级的台阶总共有多少种跳法
+  该问题实质是斐波那契数列求和，递推公式为 f(n)=f(n-1)+f(n-2);
+
+
+class Solution {
+public:
+    int jumpFloor(int number) {
+        if(number <= 0) {
+            return 0;
+        }
+        else if(number == 1 || number == 2) {
+            return number;
+        }
+        else {
+          //int re = 0;                                           
+            return jumpFloor(number - 1) + jumpFloor(number - 2); 
+        }
+    }
+
+
+
+2、变态跳台阶
+   一只青蛙一次可以跳上1级台阶，也可以跳上2级……它也可以跳上n级。求该青蛙跳上一个n级的台阶总共有多少种跳法
+   A： f(n) = f(n-1)+f(n-2)+...+f(1)
+       f(n-1) = f(n-2)+ f(n-3)...+f(1)
+    两式相减，得到f(n) = 2*f(n-1)
+
+class Solution {
+public:
+    int jumpFloorII(int number) {
+        if(number <= 0) {
+            return 0;
+        }
+        else if(number == 1 || number == 2) {
+            return number;
+        }
+        else {
+            return 2 * jumpFloorII(number - 1);
+        }
+    }
+
+
+3、调整数组顺序使奇数位于偶数前面
+
+   private static void ReorderArray(int[] arr){
+    int left = 0;
+    int right = arr.length-1;
+    while(left<right) {
+        while(left<right && (arr[left]&1)==1)//使用位运算判断奇偶
+            left++;//arr[left]为奇数，自增直至为偶数为止
+        while(left<right && (arr[right]&1)!=1)
+            right--;//arr[right]为偶数，自减直至为奇数为止
+        //arr[left]为偶数，arr[right]为奇数，交换
+        if(left<right){
+            int temp = arr[left];
+            arr[left] = arr[right];
+            arr[right] = temp;
+        }
+    }
+}
+
+4、链表反转
+
+- (Node*)reverse:(Node*)head
+
+    if (!head||!head->next)
+      return  nil;
+   Node  *p1=head;
+   Node  *p2=p1->next;
+   Node  *p3=p2->next;
+   p1->next = null;
+   if (p3) {
+     p2->next=p1;;
+     p1=p2;
+     p2=p3;
+     p3=p3->next;
+   }
+   p2->next=p1;
+   head=p2;
+   return   head;
+}
+
+5、//二叉树分层遍历
+
+-(void)printTreeByLevel:(Node*)head {
+     deqeue<Node*>Q;
+     Q.push_back(head);
+      while(!Q.empty) {
+        Node *node=Q.front();
+        Q.pop();
+        if (!node->left){
+           Q.push_back(node->left);
+        }
+        if (!node->right){
+         Q.push_back(node->right);
+
+         }
+      }
+}
+
+6、//二分法
+
+-(int)search:(NsArray*)array  length:(int)length  searchTarget:(int)key {
+       
+       int index=-1;
+       int left=0,right=length,middle=(left+right)/2;
+
+      while (left<right) {
+          if (array[middle]==key) {
+            index= middle;
+            break;
+          }else if (array[middle]>key) {
+               right=middle-1;
+               middle=(left+right)/2;
+          }else {
+              left=middle+1;
+              middle=(left+right)/2;
+          }
+      }
+    return index;
+}
+
+7、合并两个有序链表
+
+-(Node*)merge:(Node*)head1  target:(Node*)head2 {
+      if (!head1)
+         return head2;
+      if (!head2)
+         return head1;
+      if (head1->data>head2->data) {
+         head2->next = merge(head1,head2->next);
+         return head2;
+      } else {
+         head1->next = merge(head1->next,head2);
+         return head1;
+      }
+}
+
+/*非递归实现合并两个排序链表*/
+ListNode* Merge(ListNode* pHead1, ListNode* pHead2) {
+    
+    ListNode *pHead = new ListNode(0);
+    
+    ListNode *p = pHead;
+    while(pHead1 != NULL && pHead2 != NULL) {
+        if(pHead1->val < pHead2->val) {
+            p->next = pHead1;
+            pHead1 = pHead1->next;
+        }
+        else {
+            p->next = pHead2;
+            pHead2 = pHead2->next;
+        }
+        p = p->next;
+    }
+
+    if(pHead1 != NULL) {
+        p->next = pHead1;
+    }
+    if(pHead2 != NULL) {
+        p->next = pHead2;
+    }
+    return pHead->next;
+}
+
+
+8、链表中倒数第k个结点
+
+// 定义快慢指针，快的先走K步；
+class Solution {
+public:
+    ListNode* FindKthToTail(ListNode* pListHead, unsigned int k) {
+        if(pListHead == nullptr || k==0)
+            return nullptr;
+ 
+        ListNode *pAhead = pListHead;
+        ListNode *pAfter = pListHead;
+ 
+        for(int i=0; i<k-1; i++)
+        {
+            if(pAhead->next != nullptr)
+                pAhead = pAhead->next;
+            else
+                return nullptr;
+        }
+ 
+        while(pAhead->next != nullptr)
+        {
+            pAhead = pAhead->next;
+            pAfter = pAfter->next;
+        }
+ 
+        return pAfter;
+ 
+    }
+};
+
+9、树的子结构，输入两棵二叉树A，B，判断B是不是A的子结构
+
+   /*分两步，判断根节点是否相等；判断子结构是否相等*/
+class Solution {
+public:
+    bool HasSubtree(TreeNode* pRoot1, TreeNode* pRoot2)
+    {
+        bool result = false;
+        if(pRoot1!=nullptr && pRoot2!=nullptr)
+        {
+            if(pRoot1->val == pRoot2->val)
+                result = DoesTree1HaveTree2(pRoot1, pRoot2);
+            if(!result)
+                result = HasSubtree(pRoot1->left, pRoot2);
+            if(!result)
+                result = HasSubtree(pRoot1->right, pRoot2);
+        }
+        return result;
+    }
+    bool DoesTree1HaveTree2(TreeNode *Tree1, TreeNode *Tree2)
+    {
+        if(Tree2 == nullptr)
+            return true;
+        if(Tree1 == nullptr)
+            return false;
+        if(Tree1->val != Tree2->val)
+            return false;
+        return DoesTree1HaveTree2(Tree1->left, Tree2->left) &&
+            DoesTree1HaveTree2(Tree1->right, Tree2->right);
+    }
+};
+
+
+10. 顺时针打印矩阵 
+   把矩阵看成由若干个顺时针方向的圈组成，循环打印矩阵中的每个圈，每次循环打印一个圈。打印一圈通常分为四步，第一步从左到右打印一行；第二步从上到下打印一列；
+   第三步从右到左打印一行；第四步从下到上打印一列。
+   设置四个变量left，right，top，btm，用于表示圈的方位，每一步根据起始坐标和终止坐标循环打印
+
+  class Solution {
+    public:
+       vector<int> printMatrix(vector<vector<int> > matrix) {
+          // 存储结果
+          vector<int> result;
+           // 边界条件
+           if(matrix.empty())
+               return result;
+           // 二维矩阵行列
+          int rows = matrix.size();
+          int cols = matrix[0].size();
+          // 圈的四个角标
+          int left = 0;
+          int right = cols-1;
+          int top = 0;
+          int btm = rows-1;
+          // 循环打印圈
+          while(left <= right && top <= btm){             // 循环条件：
+              // 圈的第一步
+              for(int i=left;i<=right;++i)                // 第一步循环条件
+                  result.push_back(matrix[top][i]);       // 第一步坐标
+              // 圈的第二步
+              if(top<btm)                                 // 第二步边界条件
+                  for(int i=top+1;i<=btm;++i)             // 第二步循环条件
+                      result.push_back(matrix[i][right]); // 第二步坐标
+              // 圈的第三步
+              if(top<btm && left<right)                   // 第三步边界条件
+                  for(int i=right-1;i>=left;--i)          // 第三步循环条件
+                      result.push_back(matrix[btm][i]);   // 第三步坐标
+              // 圈的第四步
+              if(top+1<btm && left<right)                 // 第四步边界条件
+                 for(int i=btm-1;i>=top+1;--i)           // 第四步循环条件
+                      result.push_back(matrix[i][left]);  // 第四步坐标
+  
+              ++left;--right;++top;--btm;
+          }
+         return result;
+     }
+ };
+
+ 11、包含min函数的栈
+     定义栈的数据结构，请在该类型中实现一个能够得到栈最小元素的min函数
+
+     class Solution {
+           public:
+            
+            void push(int value) {
+              if(s_data.empty()){
+                s_data.push(value);
+                s_min.push(value);
+              }else{
+                s_min.push(value<s_min.top()?value:s_min.top());
+                s_data.push(value);
+              }
+            }
+            
+            void pop() {
+              s_data.pop();
+              s_min.pop();
+            }
+            
+            int top() {
+              return s_data.top();
+            }
+            
+            int min() {
+              return s_min.top();
+            }
+          
+          private:
+            stack<int> s_data;
+            stack<int> s_min;
+          };
+
+12、二叉搜索树的后序遍历序列
+    https://www.cnblogs.com/wanglei5205/p/8684408.html
+    二叉查找树(二叉排序树)：若它的左子树不空，则左子树上所有结点的值均小于它的根结点的值； 若它的右子树不空，则右子树上所有结点的值均大于它的根结点的值； 
+    它的左、右子树也分别为二叉排序树
+
+    二叉排序树后序遍历的性质：序列最后一个数字是根节点，序列剩余部分分成两部分，前一部分是左子树，后一部分是右子树。
+
+    class Solution {
+
+      public:
+        bool VerifySquenceOfBST(vector<int> sequence) {
+          return bst(sequence, 0, sequence.size() - 1);
+      }
+    
+     private:
+
+      bool bst(vector<int> seq, int begin, int end) {
+        // 边界条件
+        if(seq.empty() || begin > end)
+            return false;
+ 
+        // 划分左右子树，并判断左右子树和根节点的关系
+        int i = begin;
+        for(; i < end; ++i)
+            if(seq[i] > seq[end])
+                break;
+ 
+        int j = i;
+        for(; j < end; ++j)
+            if(seq[j] < seq[end])
+                return false;
+
+        // 判断左子树是不是二叉搜索树
+        bool left = true;
+        if(i > begin)
+            left = bst(seq, begin, i - 1);
+ 
+        // 判断右子树是不是二叉搜索树
+        bool right = true;
+        if(i < end - 1)
+            right = bst(seq, i , end - 1);
+ 
+        return left && right;
+      }
+};
+
+13、二叉树中和为某一值的路径
+   输入一颗二叉树和一个整数，打印出二叉树中结点值的和为输入整数的所有路径。路径定义为从树的根结点开始往下一直到叶结点所经过的结点形成一条路径。
+   
+   回溯法，终止条件是为叶子节点，且值相等； 
+  class Solution {
+        public:
+          vector<vector<int> > FindPath(TreeNode* root,int expectNumber) {
+            vector<vector<int>> pathes;
+            if(root==nullptr)
+            return pathes;
+          vector<int> onePath;
+          int curSum = 0;
+          findPath(root, pathes, onePath, expectNumber, curSum);
+          return pathes;
+        }
+      
+      private:
+        void findPath(TreeNode *pRoot,vector<vector<int>> &pathes, vector<int> onePath, int expectNumber, int &curSum) {
+        curSum += pRoot->val;
+        onePath.push_back(pRoot->val);
+        if(Root->left==nullptr && pRoot->right==nullptr && curSum==expectNumber){
+            pathes.push_back(onePath);
+            return;
+        }
+        if(pRoot->left != nullptr)
+            findPath(pRoot->left, pathes, onePath, expectNumber, curSum);
+        if(pRoot->right != nullptr)
+            findPath(pRoot->right, pathes, onePath, expectNumber, curSum);
+        curSum -=pRoot->val;
+        onePath.pop_back();
+    }
+
+ 
+ 16、字符串的排列
+     输入一个字符串,按字典序打印出该字符串中字符的所有排列。例如输入字符串abc,则打印出由字符a,b,c所能排列出来的所有字符串abc,acb,bac,bca,cab和cba
+     思路：
+     求整个字符串的排列，可以看出两步：首先求所有可能出现在第一个位置的字符，即把第一个字符和后面的所有字符交换；然后固定第一个字符，求后面所有字符的排序。
+     此时仍把后面的字符看成两部分，第一个字符和后面的字符，然后重复上述步骤。（递归）
+     
+     /*全排列问题*/
+     class Solution {
+        public:
+          vector<string> Permutation(string str) {
+            vector<string> result;
+            if(str.size()<=0)
+              return result;
+            PermutationCore(result, str, 0);
+            sort(result.begin(), result.end());
+            return result;
+          }
+          void PermutationCore(vector<string> &result, string str, int begin) {
+            if(begin == str.size()-1)
+              result.push_back(str);
+            else {
+             for(int i=begin; i<str.size(); i++) {
+                if(i!=begin && str[i]==str[begin])
+                    continue;
+                swap(str[i], str[begin]);
+                PermutationCore(result, str, begin+1);
+                swap(str[i], str[begin]);
+            }
+        }
+    }
+};
+
+17、数组中出现次数超过一半的数字
+
+   /*一个思路是基于快排中partition（会修改数组中的值）；
+还有就是：定义一个times记录当前牟数字出现的次数，如果小于0则替换；
+复杂度都是O(n)
+*/
+class Solution {
+
+public:
+    int MoreThanHalfNum_Solution(vector<int> numbers) {
+        if(numbers.size() <= 0)
+            return 0;
+        int result = numbers[0];
+        int times = 1;
+ 
+        for(int i=0; i<numbers.size(); i++) {
+            if(times==0)
+            {
+                result = numbers[i];
+                times = 1;
+            }
+            else if(times>0 && result==numbers[i])
+                ++ times;
+            else
+                -- times;
+        }
+        if(!isMoreThanHalf(numbers, result))
+            return 0;
+ 
+        return result;
+ 
+    }
+ 
+private:
+    bool isMoreThanHalf(vector<int> numbers, int result) {
+        int times = 0;
+        for(int i=0; i<numbers.size(); i++)
+            if(numbers[i] == result)
+                ++ times;
+        if(2*times <= numbers.size())
+            return false;
+        return true;
+    }
+}
+
+18、最小的K个数
+    输入n个整数，找出其中最小的K个数。例如输入4,5,1,6,2,7,3,8这8个数字，则最小的4个数字是1,2,3,4,。
+/*复杂度为O(n logn)*/
+class Solution {
+public:
+    vector<int> GetLeastNumbers_Solution(vector<int> input, int k) {
+        vector<int> result;
+        if(input.size()<k || k<1)
+            return result;
+ 
+        sort(input.begin(),input.end());
+ 
+        for(int i=0; i<k; i++)
+            result.push_back(input[i]);
+        return result;
+    }
+
+
+20、连续子数组的最大和
+
+
+/* 思路：动态规划复杂度为O(n)， 首先定义一个值保存当前最大值；
+如果当前和为负数，直接舍弃；如果不为负数，则累加；得到 当前和 与 当前最大值 比较*/
+class Solution {
+   public:
+      int FindGreatestSumOfSubArray(vector<int> array) {
+        if(array.size() < 1)
+            return 0;
+        int curSum = array[0];
+        int greatestSum = array[0];
+        for(int i=1; i<array.size(); i++)
+        {
+            if(curSum < 0)
+                curSum = array[i];
+            else
+                curSum += array[i];
+ 
+            if(greatestSum < curSum)
+                greatestSum = curSum;
+        }
+        return greatestSum;
+    }
+
+32、把数组排成最小的数
+输入一个正整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。例如输入数组{3，32，321}，
+则打印出这三个数字能排成的最小数字为321323
+思路：转化为字符串比较，输出字符串
+
+/*思路：通过字符串解决大数问题，然后通过自定义的字符串比较规则，对字符串排序*/
+class Solution {
+   public:
+      string PrintMinNumber(vector<int> numbers) {
+        if(numbers.size()<1)
+            return string();
+ 
+        string result;
+        vector<string> numberString;
+        for(int i=0; i<numbers.size(); i++)
+        {
+            stringstream ss;
+            ss<<numbers[i];
+            string s = ss.str();
+            numberString.push_back(s);
+        }
+        sort(numberString.begin(), numberString.end(), Compare);
+ 
+        for(int i=0; i<numberString.size(); i++)
+            result.append(numberString[i]);
+ 
+        return result;
+    }
+
+    static bool Compare(const string &str1, const string &str2) {
+        string s1 = str1+str2;
+        string s2 = str2+str1;
+        return s1<s2;
+    }
+}
+
+33、第一个只出现一次的字符
+    在一个字符串(1<=字符串长度<=10000，全部由大写字母组成)中找到第一个只出现一次的字符,并返回它的位置。
+
+    /*思路：借助哈希表，但是空间复杂度为O(1)，时间复杂度为O(n); */
+    class Solution {
+         public:
+          int FirstNotRepeatingChar(string str) {
+            if(str.size()<=0)
+            return -1;
+            int tableSize = 256;
+            vector<int> numOfChar(tableSize, 0);
+            for(int i=0; i<str.size(); i++)
+              ++numOfChar[str[i]];
+            for(int i=0; i<str.size(); i++)
+              if(numOfChar[str[i]]==1 && str[i]!='\0')
+                return i;
+              return -1;
+    }
+
+
+34. 两个链表的第一个公共结点
+    输入两个链表，找出它们的第一个公共结点。
+    我们也可以先让把长的链表的头砍掉，让两个链表长度相同，这样，同时遍历也能找到公共结点。此时，时间复杂度O(m+n)，空间复杂度为O(MAX(m,n))。
+
+    /*思路：统计两个链表的长度，计算差值k，定义快慢指针，长链表先走k步*/
+class Solution {
+   public:
+     ListNode* FindFirstCommonNode( ListNode* pHead1, ListNode* pHead2) {
+        if(pHead1==nullptr || pHead2==nullptr)
+            return nullptr;
+ 
+        int length1 = getListLength(pHead1);
+        int length2 = getListLength(pHead2);
+        ListNode *pAhead = pHead1;
+        ListNode *pBehind = pHead2;
+        int diff = length1-length2;
+        if(length1 < length2)
+        {
+            pAhead = pHead2;
+            pBehind = pHead1;
+            diff = length2-length1;
+        }
+        for(int i=0; i<diff; i++)
+            pAhead = pAhead->next;
+ 
+        while(pAhead!=nullptr && pBehind!=nullptr) {
+            if(pAhead == pBehind)
+                return pAhead;
+            pAhead = pAhead->next;
+            pBehind = pBehind->next;
+        }
+        return nullptr;
+    }
+ 
+private:
+    int getListLength(ListNode *pHead) {
+        if(pHead == nullptr)
+            return 0;
+        int length = 0;
+        while(pHead != nullptr){
+            ++ length;
+            pHead = pHead->next;
+        }
+        return length;
+    }
+}
+
+35、数字在排序数组中出现的次数
+    统计一个数字在排序数组中出现的次数。
+    思路： 注意有序数组
+     1、顺序遍历
+      顺序扫描一遍数组，统计该数字出现的次数。时间复杂度：O(n)
+     2、二分查找
+
+       假设我们需要找的数字是k，那么就需要找到数组中的第一个k和最后一个k出现的位置。
+       如何通过二分查找得到第一个k的位置呢？
+       取数组中间的数字与k作比较，
+       如果该数字比k大，那么k只能出现在前半部分，那么下一轮只能在前半部分找；
+       如果该数字比k小，那么k只能出现在后半部分，那么下一轮只能在后半部分找；
+       如果该数字等于k，需要判断这是不是第一个k，如果该数字的前一个数字不是k，那么该数字就是第一个k，否则需要在前半部分继续寻找第一个k；
+       寻找最后一个k的方法与寻找第一个k的方法一样。
+
+  /*思路：基于二分查找复杂度为O(logn)；二分查找开始位置，二分查找结尾位置，做差；*/
+class Solution {
+    public:
+
+    int GetNumberOfK(vector<int> data ,int k) {
+        int length = data.size();
+        if(length <= 0)
+            return 0;
+ 
+        int first = firstIndex(data, k);
+        int last = lastIndex(data, k);
+        if(first > -1 && last > -1)
+            return last-first+1;
+ 
+        return 0;
+    }
+    int firstIndex(vector<int> data, int k) {
+        int low = 0;
+        int high = data.size()-1;
+        int midIndex, midData;
+        while(low <= high)
+        {
+            midIndex = (low+high)/2;
+            midData = data[midIndex];
+ 
+            if(midData == k)
+            {
+                if(midIndex == 0 || data[midIndex-1] != k)
+                    return midIndex;
+                else
+                    high = midIndex-1;
+            }
+            else if(midData > k)
+                high = midIndex-1;
+            else
+                low = midIndex+1;
+        }
+        return -1;
+    }
+ 
+    int lastIndex(vector<int> data, int k) {
+        int low = 0;
+        int high = data.size()-1;
+        int midIndex, midData;
+        while(low <= high) {
+            midIndex = (low+high)/2;
+            midData = data[midIndex];
+ 
+            if(midData == k)
+            {
+                if(midIndex == data.size()-1 || data[midIndex+1] != k)
+                    return midIndex;
+                else
+                    low = midIndex+1;
+            }
+            else if(midData > k)
+                high = midIndex-1;
+            else
+                low = midIndex+1;
+        }
+        return -1;
+    }
+};
+
+
+
+
+
+
+

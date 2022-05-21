@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    它是最慢的排序算法之一，数据值会像气泡一样从数组的一端漂浮到另一端
+    <script>
+        function bufferSort(arr) {
+            for (let i = 0; i < arr.length; i++) {
+                for (let j = 0; j < i; j++) {
+                    if (arr[i] < arr[j]) {
+                        [arr[i], arr[j]] = [arr[j], arr[i]]
+                    }
+                    console.log('循环次数')
+                }
+            }
+            return arr;
+        }
+        const array = [2, 3, 1, 9, 6, 4, 7, 8, 5];
+        console.log(array.sort((a, b) => a - b))
+        console.log(bufferSort(array))
+    </script>
+</body>
+
+</html>

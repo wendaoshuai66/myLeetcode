@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "es5",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'. */
+    "module": "es2015", 
+    "lib": ["dom", "ES2015","ES2015.Promise","ES2017.Object"],
+    "allowJs": true,
+    "jsx": "react",
+    "sourceMap": true,
+    "strict": true, //志启用了广泛的类型检查行为，从而增强了程序正确性的保证。打开它相当于启用所有严格模式系列选项，如下所述。然后，您可以根据需要关闭单个严格模式系列检查
+    "noImplicitAny": true,
+    "strictFunctionTypes": true,
+    "alwaysStrict": true, 
+    "noUnusedLocals": true,   //没有未使用的本地人
+    "noUnusedParameters": true, // 没有未使用的参数
+    "noImplicitReturns": true, //没有隐式回报
+    "experimentalDecorators": true, // 启用对与模块一起使用的装饰器发出类型元数据的实验性支持
+     "moduleResolution": "node", // 设置程序的模块系统。有关详细信息
+     "baseUrl": "./",
+      "paths": {
+          "*": ["*", "src/*", "thirdPartySrc/*"]
+      },
+    "esModuleInterop": true,// 默认情况下（设置为esModuleInteropfalse 或未设置）TypeScript 将 CommonJS/AMD/UMD 模块视为类似于 ES6 模块。在这样做时，特别是有两个部分被证明是有缺陷的假设：
+    "allowSyntheticDefaultImports": true, // 启用esModuleInterop也会启用allowSyntheticDefaultImports.
+    "skipLibCheck": true // 改为使用skipLibCheck。跳过默认库声明文件的类型检查。
+  },
+  "exclude": ["node_modules"],
+  "include": ["src/**/*", "thirdPartySrc/**/*", "definitions/**/*"]
+}

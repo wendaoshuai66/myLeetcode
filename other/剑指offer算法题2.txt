@@ -1,0 +1,899 @@
+
+1.二叉树的深度
+
+   输入一棵二叉树，求该树的深度。从根结点到叶结点依次经过的结点（含根、叶结点）形成树的一条路径，最长路径的长度为树的深度。
+    
+/********** 递归版本 **********/
+class Solution {
+public:
+    int TreeDepth(TreeNode* pRoot) {
+        if(pRoot == nullptr)
+            return 0;
+        int left = TreeDepth(pRoot->left);
+        int right = TreeDepth(pRoot->right);
+        return left>=right?(left+1):(right+1);
+    }
+};
+
+  
+/********** 循环版本 **********/
+class Solution {
+   public:
+    int TreeDepth(TreeNode* pRoot) {
+        queue<TreeNode*> q;
+        if(!pRoot)
+            return 0;
+        q.push(pRoot);
+        int level=0;
+        while(!q.empty()) {
+            int len=q.size();
+            level++;
+            while(len--) {
+                TreeNode *tmp=q.front();
+                q.pop();
+                if(tmp->left)
+                    q.push(tmp->left);
+                if(tmp->right)
+                    q.push(tmp->right);
+            }
+        }
+        return level;
+    }
+
+2、平衡二叉树
+   
+   它是一棵空树或它的左右两个子树的高度差的绝对值不超过1，并且左右两个子树都是一棵平衡二叉树。
+   红黑树是二叉搜索树,插入比较方便，删除比较复杂
+
+
+class Solution {
+     public:
+         bool IsBalanced_Solution(TreeNode* pRoot) {
+            if(pRoot == nullptr)
+              return true;
+             int depth=0;
+         return IsBalanced(pRoot, &depth);
+    }
+ 
+   private:
+       bool IsBalanced(TreeNode *pRoot, int *depth) {
+        if(pRoot == nullptr) {
+            *depth = 0;
+            return true;
+        }
+        int left, right;
+        if(IsBalanced(pRoot->left, &left) && IsBalanced(pRoot->right, &right)) {
+            int diff = left - right;
+            if(diff <= 1 && diff >= -1) {
+                *depth = left>right?(left+1):(right+1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+3、 和为S的两个数字
+    输入一个递增排序的数组和一个数字S，在数组中查找两个数，是的他们的和正好是S，如果有多对数字的和等于S，输出两个数的乘积最小的。
+    /*思路：数列满足递增，设两个头尾两个指针i和j；
+      若ai + aj == sum，就是答案（相差越远乘积越小）
+      若ai + aj > sum，j -= 1
+      若ai + aj < sum，i += 1 
+     */
+
+class Solution {
+      public:
+        vector<int> FindNumbersWithSum(vector<int> array,int sum) {
+              vector<int> result;
+              int length = array.size();
+              if(length < 2)
+              return result;
+              int start = 0;
+              int end = length - 1;
+              // sort(array.begin(), array.end());
+              while(start < end) {
+                int curSum = array[start]+array[end];
+                if(curSum == sum){
+                  result.push_back(array[start]);
+                  result.push_back(array[end]);
+                  return result;
+                }
+                else if(curSum < sum)
+                  ++ start;
+                else
+                  -- end;
+              }
+              return result;
+            }
+          };
+ 
+ 4、和为S的连续正数序列
+
+   /*用两个数字small和big分别表示序列的最大值和最小值，首先将small初始化为1，end初始化为2.
+    如果从small到big的和大于s，我们就从序列中去掉较小的值(即增大small)
+    相反，只需要增大big。终止条件为：一直增加small到(1+sum)/2并且big小于sum为止
+    */
+class Solution {
+   public:
+      vector<vector<int> > FindContinuousSequence(int sum) {
+        vector<vector<int> > result;
+        if(sum < 3)
+            return result;
+        int small = 1;
+        int big = 2;
+        int middle = (1+sum)/2;
+        int curSum = small + big;
+        while(small < middle) //这里一定是小于，不能是小于等于 
+        {
+            if(curSum == sum)
+                insertIntoResult(result, small, big);
+            while(curSum > sum && small < middle) {
+                curSum -= small;
+                ++ small;
+                if(curSum == sum)
+                    insertIntoResult(result, small, big);
+            }
+            ++big;
+            curSum += big;
+        }
+        return result;
+    }
+
+private:
+    void insertIntoResult(vector<vector<int> > &result, int small, int big) {
+        vector<int> tmpSeq;
+        for(int i=small; i<=big; i++)
+            tmpSeq.push_back(i);
+        result.push_back(tmpSeq);
+    }
+};
+
+ 5、左旋转字符串
+   例如，字符序列S=”abcXYZdef”,要求输出循环左移3位后的结果，即“XYZdefabc”。是不是很简单？OK，搞定它！
+
+   /* 思路：三次翻转 */
+   思路：
+       反转要移位的部分，”abcXYZdef”操作后是”cbaXYZdef”
+       反转其余的部分，”cbaXYZdef”操作后是”cbafedZYX”
+       反转整个字符串，”cbafedZYX”操作后是”XYZdefabc”
+class Solution {
+    public:
+        string LeftRotateString(string str, int n) {
+        int len = str.size();
+        if(len < 0 || len < n)
+            return str;
+        for(int i=0, j=n-1; i<j; i++, j--)
+            swap(str[i], str[j]);
+        for(int i=n, j=len-1; i<j; i++, j--)
+            swap(str[i], str[j]);
+        for(int i=0, j=len-1; i<j; i++, j--)
+            swap(str[i], str[j]);
+        return str;
+    }
+
+    6、翻转单词顺序列
+
+    /* 思路：两次翻转 */
+       首先整体翻转
+     每个空格之间的字符串翻转
+
+class Solution {
+
+   public:
+    string ReverseSentence(string str) {
+        int len = str.size();
+        if(len <= 0)
+            return str;
+        reverseString(str, 0, len-1);
+        int i = 0, j = 0;
+        while(j <= len) {
+            if(str[j]==' ' || j==len) {
+                reverseString(str, i, j-1);
+                i = j + 1;
+                j = i + 1;
+            } else
+                ++ j;
+        }
+        return str;
+    }
+    void reverseString(string &str, int start, int end) {
+        for(int i=start, j=end; i<j; i++, j--)
+            swap(str[i], str[j]);
+    }
+};
+ 
+    8、 求1+2+3+…+n
+       求1+2+3+…+n，要求不能使用乘除法、for、while、if、else、switch、case等关键字及条件判断语句（A?B:C）
+     方法一：递归求解
+     //用递归求解 
+     int sum(int n) {
+      if (n == 1)
+        return 1;
+      else
+        return sum(n - 1) + n;
+    }
+     
+     方法二 
+     //解题思路：
+     //1.需利用逻辑与的短路特性实现递归终止
+     //2.当n==0时，(n>0)&&((sum+=Sum_Solution(n-1))>0)只执行前面的判断，为false，然后直接返回0；
+     //3.当n>0时，执行sum+=Sum_Solution(n-1)，实现递归计算Sum_Solution(n)。
+     class Solution {
+           public:
+            int Sum_Solution(int n) {
+              int sum = n;
+              bool ans = (n>0)&&((sum+=Sum_Solution(n-1))>0);
+              return sum;
+            }
+          };
+
+     9、把字符串转换成整数
+        将一个字符串转换成一个整数，要求不能使用字符串转换整数的库函数。 数值为0或者字符串不是一个合法的数值则返回0
+        /*
+       考虑首字符的正负；
+       字符是否有效；
+       数字是否溢出；
+       */
+       class Solution {
+             public:
+                int StrToInt(string str) {
+                  if(str.empty())
+                    return 0;
+                  int symbol = 1;
+                  if(str[0] == '-') {
+                    symbol = -1;
+                    str[0] = '0';
+                  }else if(str[0] == '+') {
+                    symbol = 1;
+                    str[0] = '0';
+                  }
+                  int sum = 0;
+                  for(int i=0; i<str.size(); i++) {
+                    if(str[i] < '0' || str[i] > '9') {
+                      sum = 0;
+                      break;
+                    }
+                    sum = sum * 10 + str[i] - '0';
+                  }
+                  return symbol * sum;
+                }
+              };
+
+      10.数组中重复的数字
+         在一个长度为n的数组里的所有数字都在0到n-1的范围内。 数组中某些数字是重复的，但不知道有几个数字是重复的。也不知道每个数字重复几次。请找出数组中任意一个重复的数字。 
+         例如，如果输入长度为7的数组{2,3,1,0,2,5,3}，那么对应的输出是重复的数字2或者3
+       
+       a、排序
+
+        将数组排序，然后扫描排序后的数组即可。
+        时间复杂度：O(nlogn)，空间复杂度:O(1)
+      b、哈希表
+        从头到尾扫描数组，每扫描到一个数字，判断该数字是否在哈希表中，如果该哈希表还没有这个数字，那么加入哈希表，如果已经存在，则返回该数字；
+        时间复杂度：O(n)，空间复杂度:O(n)
+      c、交换
+      /*
+      通过比较这个数字(m)是不是等于i，如果是，接着扫描下一个数字。如果不是则拿它和第m个数字进行比较，
+      如果和第m个数字相等，则找到一个重复的数字。如果它和第m个数字不相等，就把第i个数字和第m个数字交换，把m放到属于它的位置。复杂度为O(n)
+     */
+     class Solution {
+          public:
+            bool duplicate(int numbers[], int length, vector<int>duplication) {
+        if(numbers == nullptr || length<=0)
+            return false;
+        for(int i=0; i<length; i++)
+            if(numbers[i]<0 || numbers[i]>length-1)
+                return false;
+        for(int i=0; i<length; i++) {
+
+            while(numbers[i] != i) {
+                if(numbers[i] == numbers[numbers[i]]) {
+                    duplication.push_back(numbers[i]);
+                    return true;
+                }
+                int tmp = numbers[i];
+                numbers[i] = numbers[tmp];
+                numbers[tmp] = tmp;
+            }
+        }
+        return false;
+      }
+   
+
+  11、字符流中第一个不重复的字符
+      /*
+      借助hash表；
+      */
+      class Solution {
+      public:
+      //Insert one char from stringstream
+        void Insert(char ch) {
+          s += ch;
+          hash[ch] ++;
+        }
+        //return the first appearence once char in current stringstream
+        char FirstAppearingOnce() {
+        int size = s.size();
+        for(int i=0; i<size; ++i) {
+            if(hash[s[i]] == 1)
+                return s[i];
+        }
+        return '#';
+      }
+       private:
+          string s;
+          int hash[256] = {0};
+        };
+
+   12、链表中环的入口结点
+       一个链表中包含环，请找出该链表的环的入口结点
+       https://blog.csdn.net/kongmin_123/article/details/82313198
+
+       /*
+        1.定义快慢指针，找到相遇节点；
+        2.计算环的长度length；
+        3.在定义快慢指针，先让快指针走length步，在让慢指针走。直到两个指针相等时，即为入口节点；
+        复杂度为O(n);
+        */
+        class Solution {
+             public:
+                ListNode* EntryNodeOfLoop(ListNode* pHead) {
+        ListNode *meetNode = meetingNode(pHead);
+        if(meetNode == nullptr)
+            return nullptr;
+ 
+        int loopLength=1;
+        ListNode *pNode1 = meetNode->next;
+        while(pNode1 != meetNode)
+        {
+            ++ loopLength;
+            pNode1 = pNode1->next;
+        }
+        pNode1 = pHead;
+        ListNode *pNode2 = pHead;
+ 
+        for(int i=0; i<loopLength; i++)
+            pNode1 = pNode1->next;
+ 
+        while(pNode1 != pNode2)
+        {
+            pNode1 = pNode1->next;
+            pNode2 = pNode2->next;
+        }
+        return pNode1;
+      }
+ 
+    ListNode* meetingNode(ListNode *pHead) {
+        if(pHead == nullptr)
+            return nullptr;
+ 
+        ListNode *pSlow = pHead->next;
+        if(pSlow == nullptr)
+            return nullptr;
+ 
+        ListNode *pFast = pSlow->next;
+        while(pFast != nullptr && pSlow != nullptr) {
+            if(pFast == pSlow)
+                return pFast;
+            pSlow = pSlow->next;
+            pFast = pFast->next;
+            if(pFast != nullptr)
+                pFast = pFast->next;
+        }
+        return nullptr;
+    }
+  }
+
+
+  13、删除链表中重复的结点
+      在一个排序的链表中，存在重复的结点，请删除该链表中重复的结点，重复的结点不保留，返回链表头指针。 
+      例如，链表1->2->3->3->4->4->5 处理后为 1->2->5
+
+
+/************* 保留重复节点版本 *****************/
+// 1 2 2 3 4 4 5
+// 1 2 3 4 5
+      class Solution {
+            public:
+                 ListNode* deleteDuplication(ListNode* pHead) {
+                    if(pHead == nullptr)
+                    return nullptr;
+                    ListNode *pCurNode = pHead;
+                    while(pCurNode != nullptr) {
+                      ListNode *pNext = pCurNode->next;
+                      if(pNext != nullptr && pCurNode->val == pNext->val) {
+                        int value = pCurNode->val;
+                        ListNode *delNode = pNext;
+                        while(delNode!=nullptr && delNode->val==value) {
+                          pNext = delNode->next;
+                          delete delNode;
+                          delNode = pNext;
+                        }
+                        pCurNode->next = pNext;
+                        pCurNode = pCurNode->next;
+                      } else
+                         pCurNode = pCurNode->next;
+                    }
+                      return pHead;
+                    }
+                  };
+
+
+/************* 不保留重复节点版本 *****************/
+// 1 2 2 3 4 4 5
+// 1 3 5
+
+class Solution {
+public:
+    ListNode* deleteDuplication(ListNode* pHead) {
+        if(pHead == nullptr)
+            return nullptr;
+        ListNode *pCurNode = pHead;
+        ListNode *pPreNode = nullptr;
+        while(pCurNode != nullptr) {
+            ListNode *pNext = pCurNode->next;
+            bool toBeDeleted = false;
+            if(pNext != nullptr && pCurNode->val == pNext->val)
+                toBeDeleted = true;
+            if(!toBeDeleted) {
+                pPreNode = pCurNode;
+                pCurNode = pCurNode->next;
+              } else {
+                int value = pCurNode->val;
+                ListNode *delNode = pCurNode;
+                while(delNode!=nullptr && delNode->val==value) {
+                    pNext = delNode->next;
+                    delete delNode;
+                    delNode = pNext;
+                }
+                if(pPreNode == nullptr)
+                    pHead = pNext;
+                else
+                    pPreNode->next = pNext;
+                    pCurNode = pNext;
+            }
+          }
+          return pHead;
+        }
+      };
+
+ 14、二叉搜索树的第k个结点
+     给定一颗二叉搜索树，请找出其中的第k大的结点。例如， 5 / \ 3 7 /\ /\ 2 4 6 8 中，按结点数值大小顺序第三个结点的值为4。
+
+
+
+//中序遍历
+//中序遍历的结果就是有序序列，第K个元素就是vec[K-1]存储的节点指针；
+
+/********** 递归版本中序遍历 ********/
+class Solution { 
+      public:
+    //中序遍历的结果就是有序序列，第K个元素就是vec[K-1]存储的节点指针；
+    TreeNode* KthNode(TreeNode* pRoot, unsigned int k) {
+        if(pRoot==NULL||k<=0) return NULL;
+        vector<TreeNode*> vec;
+        Inorder(pRoot,vec);
+        if(k>vec.size())
+            return NULL;
+        return vec[k-1];
+    }
+    //中序遍历，将节点依次压入vector中
+    void Inorder(TreeNode* pRoot,vector<TreeNode*>& vec) {
+        if(pRoot==NULL) return;
+        Inorder(pRoot->left,vec);
+        vec.push_back(pRoot);
+        Inorder(pRoot->right,vec);
+      }
+
+}
+
+/********** 非递归版本中序遍历 ********/
+class Solution {
+     public:
+         TreeNode* KthNode(TreeNode* pRoot, int k) {
+           int count = 0;
+           stack<TreeNode*> s;
+           TreeNode *p = pRoot;
+           while (!s.empty() || p) {
+            if (p) {
+                s.push(p);
+                p = p->left;
+             } else if (!s.empty()) {
+                p = s.top();
+                s.pop();
+                if (++count  == k)
+                    return p;
+                p = p->right;
+            }
+          }
+          return null;
+        }
+
+  15、对称的二叉树
+      请实现一个函数，用来判断一颗二叉树是不是对称的
+      思路：递归判断：R1->left与R2->right比较，R2->left与R1->right比较；
+      class Solution {
+            public:
+              bool isSymmetrical(TreeNode* pRoot) {
+                return isSymmetrical(pRoot, pRoot);
+              }
+            private:
+              bool isSymmetrical(TreeNode *pRoot1, TreeNode *pRoot2) {
+                   if(pRoot1 == nullptr && pRoot2 == nullptr)
+                      return true;
+                   if(pRoot1 == nullptr || pRoot2 == nullptr)
+                     return false;
+                   if(pRoot1->val != pRoot2->val)
+                   return false;
+                  return isSymmetrical(pRoot1->left, pRoot2->right)
+                         && isSymmetrical(pRoot1->right, pRoot2->left);
+                }
+
+
+  16、 按之字形顺序打印二叉树
+          请实现一个函数按照之字形打印二叉树，即第一行按照从左到右的顺序打印，第二层按照从右至左的顺序打印，
+          第三行按照从左到右的顺序打印，其他行以此类推。
+          /*
+          借助两个辅助栈；
+          在打印某一行节点时，把下一层的子节点保存到相应的栈里。
+          如果当前打印的是奇数层（一，三层等），则先保存左子结点再保存右子结点到第一个栈里；
+          如果当前打印的是偶数层（二，四层等），则先保存右子结点再保存左子结点到第二个栈里；
+          */
+          class Solution {
+          public:
+              vector<vector<int> > Print(TreeNode* pRoot) {
+
+                vector<vector<int> > result;
+                  if(pRoot == nullptr)
+                  return result;
+               stack<TreeNode*> levels[2];
+               int current = 0;
+               int next = 1;
+               levels[current].push(pRoot);
+               vector<int> oneRow;
+               while(!levels[0].empty() || !levels[1].empty()) {
+                     
+                     TreeNode *pNode = levels[current].top();
+                     levels[current].pop();
+                     oneRow.push_back(pNode->val);
+                     if(current == 0) {
+                         if(pNode->left != nullptr)
+                            levels[next].push(pNode->left);
+                         if(pNode->right != nullptr)
+                            levels[next].push(pNode->right);
+                      }else {
+                         if(pNode->right != nullptr)
+                            levels[next].push(pNode->right);
+                         if(pNode->left != nullptr)
+                            levels[next].push(pNode->left);
+                     }
+
+
+                   if(levels[current].empty()) {
+                        result.push_back(oneRow);
+                        oneRow.clear();
+                        current = 1 - current;
+                        next = 1 - next;
+                   }
+                 }
+                 return result;
+               }
+             }
+  
+  17、数据流中的中位数
+
+       方法一： 找中位数也可以用快排分治的思想
+           思路：任意挑一个元素，以改元素为支点，划分集合为两部分，如果左侧集合长度恰为 (n-1)/2，那么支点恰为中位数。 如果左侧长度<(n-1)/2, 那么中位点在右侧， 反之，中位数在左侧。 进入相应的一侧继续寻找中位点
+
+               //快排核心
+     int partion(int[] arr,int start,int end){
+        int left=start;
+        int right=end;
+        int tmp = arr[left];
+        while(left<right){
+            while(left<right && arr[right]>=tmp){
+                right--;
+            }
+            arr[left]=arr[right];
+            while(left<right && arr[left]<=tmp){
+                left++;
+            }
+            arr[right]=arr[left];
+        }
+        arr[left] = tmp;
+        return left;
+    }
+    //无序数组找中位数
+   int GetMidNumNoSort1(int[] arr,int size) {
+        if(arr == null || arr.length ==0 ){
+            return 0;
+        }
+        int start =0;
+        int end=size-1;
+        int mid=(size-1)/2;
+        int div=partion(arr,start,end);
+        while(div!=mid){
+            if(div<mid){//在右半区找
+                div=partion(arr,div+1,end);
+            }else{//在左半区找
+                div=partion(arr,start,div-1);
+            }
+        }
+        return arr[mid];
+    }
+
+
+方法二：
+
+https://www.cnblogs.com/easonliu/p/4441916.html
+         
+         class Solution {
+public:
+    void Insert(int num) {
+
+        // 如果已有数据为偶数，则放入最小堆
+        if(((max.size() + min.size()) & 1) == 0){
+            // 如果插入的数字小于最大堆里的最大的数，则将数字插入最大堆
+            // 并将最大堆中的最大的数字插入到最小堆
+            if(max.size() > 0 && num < max.top()){
+                //插入数据插入到最大堆数组
+                max.push(num);
+                // 拿出最大堆中的最大数
+                num = max.top();
+                max.pop();
+            }
+            
+            // 将数据插入最小堆数组,调整最小堆
+            min.push(num); //把前一半找到的最大值放到后一半中
+
+        }
+        // 已有数据为奇数，则放入最大堆
+        else {
+            if(min.size() > 0 && num > min.top()){
+                // 将数据插入最小堆
+                min.push(num);
+                // 拿出最小堆的最小数
+                num = min.top();
+                // 删除最小堆的栈顶元素
+                min.pop();
+            }
+            // 将数据插入最大堆
+            max.push(num);  //把后一半找到的最小值放到前一半中
+        }
+    }
+    
+
+    double GetMedian() {
+        // 统计数据大小
+        int size = min.size() + max.size();
+        if(size == 0){
+            return 0;
+        }
+        // 如果数据为偶数
+        if((size & 1) == 0){
+            return (min.top() + max.top()) / 2.0;
+        }
+        // 奇数
+        else{
+            return max.top();
+        }
+    }
+
+    private:
+       //先最大堆后最小堆
+       // 使用vector建立最大堆和最小堆,min是最小堆数组,max是最大堆数组
+       priority_queue<int,vector<int>,greater<int> > min;      //数组中的后一半元素组成一个最小化堆
+       priority_queue<int,vector<int>,less<int> > max;         //数组中的前一半元素组成一个最大化堆
+};
+
+
+19、 滑动窗口的最大值
+    给定一个数组和滑动窗口的大小，找出所有滑动窗口里数值的最大值。例如，如果输入数组{2,3,4,2,6,2,5,1}及滑动窗口的大小3，那么一共存在6个滑动窗口，他们的最大值分别为{4,4,6,6,6,5}； 针对数组{2,3,4,2,6,2,5,1}的滑动窗口有以下6个： {[2,3,4],2,6,2,5,1}， {2,[3,4,2],6,2,5,1}， {2,3,[4,2,6],2,5,1}， {2,3,4,[2,6,2],5,1}， {2,3,4,2,[6,2,5],1}， {2,3,4,2,6,[2,5,1]}。
+
+    思路：
+        采用双端队列，队列中的头节点保存的数据比后面的要大。
+        比如当前假如的数据比队尾的数字大，说明当前这个数字最起码在从现在起到后面的过程中可能是最大值，而之前队尾的数字不可能最大了，所以要删除队尾元素。
+       此外，还要判断队头的元素是否超过size长度，由于存储的是下标，所以可以计算得到；
+       特别说明，我们在双端队列中保存的数字是传入的向量的下标；
+
+  class Solution {
+public:
+    vector<int> maxInWindows(const vector<int>& num, unsigned int size)
+    {
+        vector<int> vec;
+        if(num.size()<=0 || num.size()<size ||size<=0) return vec;//处理特殊情况
+        deque<int> dq;
+        //处理前size个数据，因为这个时候不需要输出最大值；
+        for(unsigned int i=0;i<size;i++)
+        {
+ //假如当前的元素比队列队尾的元素大，说明之前加入的这些元素不可能是最大值了。因为当前的这个数字比之前加入队列的更晚
+            while(!dq.empty()&&num[i]>=num[dq.back()])
+                dq.pop_back();//弹出比当前小的元素下标
+            dq.push_back(i);//队尾压入当前下标
+        }
+        //处理size往后的元素，这时候需要输出滑动窗口的最大值
+        for(unsigned int i=size;i<num.size();i++) {
+            vec.push_back(num[dq.front()]);
+            while(!dq.empty()&&num[i]>=num[dq.back()])
+                dq.pop_back();
+            if(!dq.empty() && dq.front()<=(int)(i-size))//判断队头的下标是否超出size大小，如果超过，要删除队头元素
+                dq.pop_front();//删除队头元素
+            dq.push_back(i);//将当前下标压入队尾，因为可能在未来是最大值
+        }
+        vec.push_back(num[dq.front()]);//最后还要压入一次
+        return vec;
+    }
+};
+
+
+第二十、树各种遍历
+
+      前序遍历
+      递归迭代法：
+         前序
+             void searchTreeNode(TreeNode *node) {
+                  if(node == null)
+                   return ;
+                   printf("%d\n",node->value);
+                   searchTreeNode(node->left);
+                   searchTreeNode(node->right);
+             }
+
+      非递归迭代  
+
+            void preorder1(TreeNode *node)  {
+     
+                stack<TreeNode *>s;
+                TreeNode *p = node;
+                
+
+                while(p!=null || !s.empty()) {
+                       while(p!=null) {
+                           s.push(p);
+                           printf("%d\n",p->data);
+                           p= p->left;
+                       }
+                       
+                       if(!s.empty()) {
+                          p = s.top;
+                          s.pop;
+                          p= p->right; 
+                       }
+
+                }
+
+            }
+
+      中序遍历
+         void preorder1(TreeNode *node)  {
+
+             stack<TreeNode *> s;
+             TreeNode *p= node;
+             
+             while(p!=null || !s.empty()) {
+
+                  while(p!=null) {
+                      s.push(p);
+                      p=p->left;
+                  }
+
+                if(!s.empty()) {
+
+                   p = s.top;
+                   printf("%d",p->data);
+                   p.pop;
+                   p = p->right;
+                 }
+            }
+         }
+
+       后序遍历：
+
+        void preorder1(TreeNode *node)  {
+
+          stack<TreeNode *> s;
+          s.push(node);
+
+          TreeNode *curr;
+          TreeNode *pre = null;
+          while(!s.empty()) {
+               curr = s.top;
+               if((curr->left == null && curr->right == null)|| 
+                  (pre!= null && pre == curr->left || pre == curr->right)) {
+                       
+                       printf("%d",curr->data);
+                       s.pop;
+                       pre = curr;
+                  } else {
+
+                     if(curr->right) 
+                       s.push(curr->right);
+                     if(curr->left)
+                       s.push(curr->left);
+
+                  }
+          }
+        }
+
+
+//更简单的非递归后序遍历 ,其他遍历方式也可以用这种方法
+void postorderTraversalNew(TreeNode *root, vector<int> &path)
+{
+    stack< pair<TreeNode *, bool> > s;
+    s.push(make_pair(root, false));
+    bool visited;
+    while(!s.empty())
+    {
+        root = s.top().first;
+        visited = s.top().second;
+        s.pop();
+        if(root == NULL)
+            continue;
+        if(visited)
+        {
+            path.push_back(root->val);
+        }
+        else
+        {
+            s.push(make_pair(root, true));
+            if(root->right){
+              s.push(make_pair(root->right, false));
+            }
+            if(root->left){
+             s.push(make_pair(root->left,false));
+            }
+        }
+    }
+}
+
+第二十一、交互数据
+
+  不使用中间变量，交换两个变量
+ //0异或任何数等于任何数； 1异或任何值等于任何值的反 ,两个相同的为零
+
+void swap1(int a, int b) {
+    a = a + b;
+    b = a - b;
+    a = a- b;
+}
+
+void swap2(int a , int b) {
+    a = a^b;
+    b = b^a;
+    a = a^b;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+

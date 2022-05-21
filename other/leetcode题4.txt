@@ -1,0 +1,307 @@
+第一、Unique Paths 不同的路径
+
+      https://www.cnblogs.com/ganganloveu/p/4155220.html
+   走方格路径
+    方法一：动态规划
+      思路：对于格点(i,j)。由于只能从上格点(i-1,j)或左格点(i,j-1)到达，并且两者路径是不重复的
+           因此path[i][j] = path[i-1][j]+path[i][j-1]
+
+     class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        vector<vector<int> > path(m, vector<int>(n, 1));
+        for(int i = 1; i < m; i ++)
+        {
+            for(int j = 1; j < n; j ++)
+            {
+                path[i][j] = path[i-1][j] + path[i][j-1];
+            }
+        }
+        return path[m-1][n-1];
+    }
+};
+
+
+第二、 Minimum Path Sum 最小路径和
+
+Input:
+[
+  [1,3,1],
+  [1,5,1],
+  [4,2,1]
+]
+Output: 7
+
+题意：从左上角到右下角找到最小和的路径
+
+  思路：动态规划
+    我们维护一个二维的dp数组，其中dp[i][j]表示当前位置的最小路径和，递推式也容易写出来 dp[i][j] = grid[i][j] + min(dp[i - 1][j],
+
+    class Solution {
+public:
+    int minPathSum(vector<vector<int> > &grid) {
+
+        int m = grid.size(), n = grid[0].size();
+        int dp[m][n];
+        dp[0][0] = grid[0][0];
+        for (int i = 1; i < m; ++i) dp[i][0] = grid[i][0] + dp[i - 1][0];
+        for (int i = 1; i < n; ++i) dp[0][i] = grid[0][i] + dp[0][i - 1];
+        for (int i = 1; i < m; ++i) {
+            for (int j = 1; j < n; ++j) {
+                dp[i][j] = grid[i][j] + min(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+        return dp[m - 1][n - 1];
+    }
+};
+
+
+
+第三、Word Break 拆分词句
+       题意： s能不能由dict中存储的单词拼出来
+       For example, given
+       s = "leetcode",
+       dict = ["leet", "code"].
+       Return true because "leetcode" can be segmented as "leet code".
+
+       方法一、动态规划
+
+      class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        unordered_set<string> wordSet(wordDict.begin(), wordDict.end());
+        vector<bool> dp(s.size() + 1);
+        dp[0] = true;
+        for (int i = 0; i < dp.size(); ++i) { // i < n+1
+            for (int j = 0; j < i; ++j) { //保证j < n
+                if (dp[j] && wordSet.count(s.substr(j, i - j))) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+        return dp.back();
+    }
+};
+
+*************************************************
+
+第四、House Robber 打家劫舍
+https://www.cnblogs.com/grandyang/p/4383632.html
+
+     题意：在一列数组中取出一个或多个不相邻数，使其和最大
+    方法一、动态规划
+          用再前面的一个的dp值加上当前的房间值，和当前房间的前面一个dp值比较，取较大值当做当前dp值，所以我们可以得到状态转移方程dp[i] = max(num[i] + dp[i - 2], dp[i - 1]), 由此看出我们需要初始化dp[0]和dp[1]，其中dp[0]即为num[0]，dp[1]此时应该为max(num[0], num[1])
+
+    class Solution {
+public:
+    int rob(vector<int> &num) {
+        if (num.size() <= 1) return num.empty() ? 0 : num[0];
+        vector<int> dp = {num[0], max(num[0], num[1])};
+        for (int i = 2; i < num.size(); ++i) {
+            dp.push_back(max(num[i] + dp[i - 2], dp[i - 1]));
+        }
+        return dp.back();
+    }
+};
+
+第五、Maximal Square   最大正方形
+
+     问题找解决的是给出一个M*N的矩阵， 只有'1', '0',两种元素； 需要你从中找出 由'1'组成的最大正方形
+
+   方法：动态规划
+      思路： 
+        思路
+当我们判断以某个点为正方形右下角时最大的正方形时，那它的上方，左方和左上方三个点也一定是某个正方形的右下角，否则该点为右下角的正方形最大就是它自己了。这是定性的判断，那具体的最大正方形边长呢？我们知道，该点为右下角的正方形的最大边长，最多比它的上方，左方和左上方为右下角的正方形的边长多1，最好的情况是是它的上方，左方和左上方为右下角的正方形的大小都一样的，这样加上该点就可以构成一个更大的正方形。但如果它的上方，左方和左上方为右下角的正方形的大小不一样，合起来就会缺了某个角落，这时候只能取那三个正方形中最小的正方形的边长加1了。假设dpi表示以i,j为右下角的正方形的最大边长，则有
+
+dp[i][j] = min(dp[i-1][j-1],dp[i-1][j], dp[i][j-1]) + 1
+
+当然，如果这个点在原矩阵中本身就是0的话，那dpi肯定就是0了
+
+   public class Solution {
+    public int maximalSquare(char[][] matrix) {
+        if(matrix.length == 0) return 0;
+        int m = matrix.length, n = matrix[0].length;
+        int mx = 0;
+        int[][] dp = new int[m][n];
+        // 第一列赋值
+        for(int i = 0; i < m; i++){
+            dp[i][0] = matrix[i][0] - '0';
+            mx = max(mx, dp[i][0]);
+        }
+        // 第一行赋值
+        for(int i = 0; i < n; i++){
+            dp[0][i] = matrix[0][i] - '0';
+            mx = max(mx, dp[0][i]);
+        }
+        // 递推
+        for(int i = 1; i < m; i++){
+            for(int j = 1; j < n; j++){
+                dp[i][j] = matrix[i][j] == '1' ? min(dp[i-1][j-1], min(dp[i-1][j], dp[i][j-1]) + 1 : 0;
+                mx = max(mx, dp[i][j]);
+            }
+        }
+        return mx * mx;
+    }
+}
+
+
+第六、 Perfect Squares 完全平方数
+    http://www.cnblogs.com/grandyang/p/4800552.html
+
+    给我们一个正整数，求它最少能由几个完全平方数组成
+     Input: n = 12
+Output: 3 
+Explanation: 12 = 4 + 4 + 4.
+
+   方法一、动态规划
+     class Solution {
+public:
+    int numSquares(int n) {
+        vector<int> dp(n + 1, INT_MAX);
+        dp[0] = 0;
+        for (int i = 0; i <= n; ++i) {
+            for (int j = 1; i + j * j <= n; ++j) {
+                dp[i + j * j] = min(dp[i + j * j], dp[i] + 1);
+            }
+        }
+        return dp.back();
+    }
+};
+
+
+第七、Longest Increasing Subsequence 最长递增子序列
+
+ 区别: 数组中的最长连续子序列
+
+方法：动态规划
+
+在每个子问题中最大的值可以设置为子序列的最后一个元素即nums[i],只要存在先前元素小于最后一个元素即nums[j]<nums[i],说明在j到i呈增长趋势，如果当前的最长长度若小于在j点的最长长度+1（在增长序列上再加上1），则该子问题的最长长度变为dp[j]+1.若大于的话说i与j之间存在下降趋势。
+
+公式为：dp[i]=dp[i]<dp[j]+1?dp[j]+1:dp[i];
+      int longestIncreasingSubsequence(vector<int> &vec) {
+          int maxIndex = 0;
+          if (vec.empty()) {
+              return maxIndex;
+          }
+          vector<int>dp(vec.size(),1);
+          for (int i = 0; i < vec.size(); i++) {
+              for (int j = 0 ; j < i; j++) {
+                  if (vec[j] < vec[i]) {
+                      dp[i] = max(dp[i], dp[j]+1);
+                  }
+              }
+              if (dp[i] > maxIndex) {
+                  maxIndex = dp[i];
+              }
+          }
+          return maxIndex;
+      }
+
+第八、 Coin Change 硬币找零
+
+动态规划
+   所以状态转移方程为：dp[i] = min(dp[i], dp[i - coins[j]] + 1);  // i为钱数
+class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        vector<int> dp(amount + 1, amount + 1);
+        dp[0] = 0;
+        for (int i = 1; i <= amount; ++i) {
+            for (int j = 0; j < coins.size(); ++j) {
+                if (coins[j] <= i) {
+                    dp[i] = min(dp[i], dp[i - coins[j]] + 1);
+                }
+            }
+        }
+        return (dp[amount] > amount) ? -1 : dp[amount];
+    }
+};
+
+
+第九、 Partition Equal Subset Sum 分割等和子集
+  https://www.cnblogs.com/grandyang/p/5951422.html
+
+Input: [1, 5, 11, 5]
+Output: true
+Explanation: The array can be partitioned as [1, 5, 5] and [11]
+
+  思路：
+  关键问题就是要找出状态转移方程了，我们需要遍历原数组中的数字，对于遍历到的每个数字nums[i]，需要更新dp数组，我们的最终目标是想知道dp[target]的boolean值，就要想办法用数组中的数字去凑出target，因为都是正数，所以只会越加越大，那么加上nums[i]就有可能
+      会组成区间 [nums[i], target] 中的某个值，那么对于这个区间中的任意一个数字j，如果 dp[j - nums[i]] 为true的话，
+      说明现在已经可以组成 j-nums[i],这个数字了，再加上nums[i]，就可以组成数字j了，那么dp[j]就一定为true。如果之前dp[j]已经为true了，当然还要保持true，
+      所以还要‘或’上自身，于是状态转移方程如下：
+      dp[j] = dp[j] || dp[j - nums[i]]         (nums[i] <= j <= target)
+      
+bool canPartitionEqualSumSubset(vector<int> &vec) {
+    if (vec.size() == 0) {
+        return true;
+    }
+    int sum = 0;
+    for (int num: vec) {
+        sum+=num;
+    }
+    if ((sum%2)!= 0) {
+       return false;
+    }
+    int target = sum/2;
+    vector<bool>dp(target + 1,false);
+    dp[0] = true;
+    for (int num : vec) {
+        for (int  i = target; i >= num; i--) {
+            dp[i] = dp[i] || dp[i - num];
+        }
+    }
+    return dp[target];
+}
+
+第十、丢棋子问题
+
+  int solutionTwo(int N, int K){
+ if ( N<1 || K<1 )
+     return 0;
+ if ( K == 1 ) return N;
+ vector<vector<int>> dp(N+1,vector<int>(K+1,0));
+ for(int i=1; i< dp.length; ++i) {
+     dp[i][1] = i;
+ }
+ for(int i=1; i<dp.length; ++i) {
+     for(int j=2; j<=K; ++j) {
+         int minx = INT_MAX;
+         for(int k=1; k<i+1; ++k) {
+             min =min(min, max(dp[k-1][j-1], dp[i-k][j]));
+             minx = min(minx, max(dp[k-1][j-1],dp[i-k][j]));
+             
+         }
+         dp[i][j] = min + 1;
+     }
+ }
+ return dp[N][K];
+
+第十一、分糖果问题
+
+一群孩子做游戏，现在请你根据游戏得分来发糖果，要求如下：
+1. 每个孩子不管得分多少，起码分到一个糖果。
+2. 任意两个相邻的孩子之间，得分较多的孩子必须拿多一些糖果。
+3. 任意两个相邻的孩子之间的得分如果一样多，糖果数必须相同
+给定一个数组arr代表得分数组，请返回最少需要多少糖果。
+
+思路分析：
+     先来看看两遍遍历的解法，首先初始化每个人一个糖果，然后这个算法需要遍历两遍，第一遍从左向右遍历，如果右边的小盆友的等级高，等加一个糖果，
+  这样保证了一个方向上高等级的糖果多。然后再从右向左遍历一遍，如果相邻两个左边的等级高，而左边的糖果又少的话，则左边糖果数为右边糖果数加一。
+  最后再把所有小盆友的糖果数都加起来返回即可。
+
+int candy(vector<int>& ratings) {
+    int res = 0, n = ratings.size();
+    vector<int> nums(n, 1);
+    for (int i = 0; i < n - 1; ++i) {
+        if (ratings[i + 1] > ratings[i]) nums[i + 1] = nums[i] + 1;
+    }
+    for (int i = n - 1; i > 0; --i) {
+        if (ratings[i - 1] > ratings[i]) nums[i - 1] = max(nums[i - 1], nums[i] + 1);
+    }
+    for (int num : nums) res += num;
+    return res;
+}
+
+ 

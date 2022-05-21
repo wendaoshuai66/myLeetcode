@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    Edit Distance 编辑距离 ***重点
+    if s1[i] == s2[j]:
+    啥都别做（skip）
+    i, j 同时向前移动
+    else:
+    三选一：
+    插入（insert）
+    删除（delete）
+    替换（replace）
+    <script>
+        function minDistance(s1, s2) {
+            let m = s1.length, n = s2.length;
+            return dp(s1, m - 1, s2, n - 1)
+        }
+        function dp(s1, m, s2, n) {
+            if (m == -1) {
+                return m + 1;
+            }
+            if (n == -1) {
+                return n + 1;
+            }
+            if (s1.charAt(m) === s2.charAt(n)) {
+                return dp(s1, m - 1, s2, n - 1)
+            }
+            // 增删提换
+            Math.min(
+                dp(s1, m, s2, n - 1) + 1,
+                dp(s1, m - 1, s2, n) + 1,
+                dp(s1, m - 1, s2, m - 1) + 1
+            )
+        }
+        function min(a, b, c) {
+            return Math.min(a, Math.min(b, c))
+        }
+    </script>
+</body>
+
+</html>

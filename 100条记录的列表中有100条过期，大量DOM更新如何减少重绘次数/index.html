@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <button id="btn1">过期设置-暴力法</button>
+    <button id="btn2">过期设置-innerHTML</button>
+    <ul id="warp"></ul>
+    <script>
+        let start = new Date().getTime();
+        const content = document.getElementById('warp');
+        let ele = document.createDocumentFragment();
+        let allkeys = [];
+        for (let i = 0; i < 1000; i++) {
+            const li = document.createElement('li');
+            li.dataset.key = i;
+            li.textContent = i;
+            ele.append(li);
+            allkeys.push(i);
+        }
+        content.append(ele);
+        // 生成过期项目 模拟服务端生成数据
+        function getExpireKeys() {
+            let keys = [];
+            while (keys.length < 100) {
+                const key = Math.floor(Math.random() * 1000);
+                if (keys.indexOf(key) === -1) {
+                    keys.push(key);
+                } else {
+                    continue;
+                }
+            }
+            return keys;
+        }
+        // 暴力法
+        document.getElementById('btn1').onclick = function () {
+            let expireKeys = getExpireKeys();
+            for (const item of expireKeys) {
+                const ele = document.querySelector(`[data-key="${item}"]`);
+                ele.innerHTML = ele.innerHTML + '已过期';
+            }
+        }
+        // 模板字符串 innerHtml 拼接
+        // 也可以使用 DocumentFragment https://developer.mozilla.org/zh-CN/docs/Web/API/DocumentFragment
+        document.getElementById('btn2').onclick = function () {
+            let expireKeys = getExpireKeys();
+            let items = [];
+            for (const item of allkeys) {
+                items.push(` <li>${item} ${expireKeys.indexOf(item) === -1 ? '' : ' 已过期'}`)
+            }
+            content.innerHTML = items.join('')
+        }
+    </script>
+</body>
+
+</html>

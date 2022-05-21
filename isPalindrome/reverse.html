@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    链表反转
+    <script>
+        class Node {
+            constructor(val) {
+                this.next = null;
+                this.val = val;
+            }
+        }
+        class LinkNode {
+            constructor() {
+                this.head = null;
+            }
+            addLast(node) {
+                if (this.head === null) {
+                    this.head = node;
+                    return;
+                }
+                let currentNode = this.head;
+                while (currentNode.next != null) {
+                    currentNode = currentNode.next;
+                }
+                currentNode.next = node;
+            }
+            batchNode(arr) {
+                for (const item of arr) {
+                    const node = new Node(item);
+                    this.addLast(node);
+                }
+                return this.head;
+            }
+        }
+        const linkNode = new LinkNode();
+        const linkNodes = linkNode.batchNode([1, 2, 3, 4, 5, 6, 7]);
+        function reverse(head) {
+            if (head === null || head.next === null) {
+                return head;
+            }
+            var last = reverse(head.next);
+            head.next.next = head;
+            head.next = null;
+            return last;
+        }
+        console.log(reverse(linkNodes))
+    </script>
+</body>
+
+</html>

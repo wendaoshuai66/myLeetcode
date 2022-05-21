@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    题意： s能不能由dict中存储的单词拼出来
+    For example, given
+    s = "leetcode",
+    dict = ["leet", "code"].
+    Return true because "leetcode" can be segmented as "leet code".
+    <script>
+        function wordBreak(s, wordDict) {
+            let memo = new Array(s.length).fill(-1);
+            function dp(s, i, wordDict) {
+                if (i === s.length) {
+                    return true;
+                }
+                if (memo[i] !== -1) {
+                    return memo[i] === 1 ? true : false;
+                }
+                for (const word of wordDict) {
+                    let len = word.length;
+                    if (i + len > s.length) {
+                        memo[i] = 0;
+                        continue;
+                    }
+                    let subStr = s.substring(i, i + len);
+                    if (subStr !== word) {
+                        memo[i] = 0;
+                        continue;
+                    }
+                    if (dp(s, i + len, wordDict)) {
+                        memo[i] = 1;
+                        return true;
+                    }
+
+                }
+                memo[i] = 0;
+                return false;
+            }
+            return dp(s, 0, wordDict)
+        }
+    </script>
+</body>
+
+</html>

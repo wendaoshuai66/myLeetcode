@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        您好
+        <br>
+        <span>ll</span>
+        <span>ll</span>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+    </div>
+    <script>
+        setTimeout(() => {
+            let eles = Array.from(document.getElementsByTagName('*'));
+            let eleObj = {};
+            for (const item of eles) {
+                const tagName = item.tagName;
+                if (/^[s|h].+/gi.test(tagName)) {
+                    eleObj[tagName] ? eleObj[tagName]++ : eleObj[tagName] = 1;
+                }
+            }
+            console.log(eleObj)
+        })
+    </script>
+</body>
+
+</html>

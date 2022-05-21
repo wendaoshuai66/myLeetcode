@@ -1,0 +1,644 @@
+
+第一、缺失数字
+//从0,1,2,...,n这n+1个数中选择n个数，找出这n个数中缺失的那个数，要求O(n)尽可能小。
+ 输入 ：[0,1,2,3,4,5,7]
+ 输出：6
+ 思路：等差数列
+ 
+int  findDisapperNum(int* a, int aLen/* a的长度*/) {
+    int sum = aLen*(aLen +1)/2;
+    int result = 0;
+    for(int i = 0;i < aLen;i++){
+        result+=a[i];
+    }
+    return (sum - result);
+}
+
+第二、寻找峰值
+
+山峰元素是指其值大于或等于左右相邻值的元素。给定一个输入数组nums，任意两个相邻元素值不相等，数组可能包含多个山峰。找到索引最大的那个山峰元素并返回其索引。
+
+[2,4,1,2,7,8,4]
+5
+
+思路：二分法
+
+int findPeakElement(const vector<int> &num) {
+        int start = 0,end=num.size()-1;
+        int mid = start + (end - start) / 2;
+        while(start <= end)
+        {
+            //找完了
+            if(start == end) return start;
+            mid = start + (end - start) / 2;
+            //往后面寻找
+            if(num[mid] < num[mid+1])
+            {
+                start = mid + 1;
+            }//往前面寻找
+            else
+            {
+                end = mid;
+            }
+        }
+        return 0;
+    }
+
+第三、左旋数组
+    思路同旋转字符串 三步骤进行
+    注意边界条件：当超过数组长度时候处理  k = k %size();
+
+ void leftRotate(vector<int> &nums, int k ){
+     int nCount = (int)nums.size();
+      k = k %nCount; //注意边界条件，当超过长度时候处理
+     if (nums.size() == 0 || k <= 0 ) {
+         return;
+     }
+     if(k>=nCount){
+         reverse(nums.begin(), nums.end());
+     }
+     
+     reverse(nums.begin(), nums.begin() + nCount - k);
+     reverse(nums.begin() + nCount - k ,  nums.end());
+     reverse(nums.begin(), nums.end());
+ }
+
+第四、矩阵中的最长递增路径
+    首先想到的是深度优先遍历算法，这种方法使用了二维数组定义四个方向。深度优先遍历，由一个节点开始一直遍历
+
+
+ class Solution {
+ public:
+     static constexpr int dirs[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+     int m,n;
+     int longestIncreasingPath(vector<vector<int>>& matrix) {
+         if (matrix.size() == 0 || matrix[0].size() == 0) {
+             return 0;
+         }
+         m = matrix.size();
+         n = matrix[0].size();
+         int res = 0;
+         auto memo = vector<vector<int>> (m, vector<int>(n,0));
+         for (int i = 0;i < m;++i)
+         {
+             for (int j = 0; j < n;++j)
+             {
+                 if (memo[i][j]) res = max(res,memo[i][j]);
+                 else res = max(res,dfs(i,j,matrix,memo));
+             }
+         }
+         return res;
+     }
+
+     int dfs(int i,int j,vector<vector<int>>& matrix,vector<vector<int>>& memo){
+         int temp = 1;
+         for (int k = 0;k < 4;++k)
+         {
+             int x = i + dirs[k][0];
+             int y = j + dirs[k][1];
+             if ((x >= 0)&&(x < m)&&(y >= 0)&&(y<n)&&(matrix[i][j]<matrix[x][y]))
+             {
+                 if (memo[x][y]) temp = max(temp,memo[x][y]+1);
+                 else temp = max(temp,dfs(x,y,matrix,memo)+1);
+             }
+         }
+         memo[i][j] = temp;
+         return temp;
+     }
+ };
+
+
+第五、旋转数组的最小数字
+
+输入一个非递减排序的数组的一个旋转，输出旋转数组的最小元素。
+NOTE：给出的所有元素都大于0，若数组大小为0，请返回0
+
+int minNumberInRotateArray(vector<int> rotateArray) {
+    
+    if(rotateArray.size() == 0){
+        return 0;
+    }
+    int min = rotateArray[0];
+    
+    for(int i = 1;i< rotateArray.size();i++){
+        if(min > rotateArray[i]){
+            min = rotateArray[i];
+        }
+    }
+    return min;
+}
+     
+第六、 完全二叉树节点个数
+ 给定一棵完全二叉树的头节点head，返回这棵树的节点个数。如果完全二叉树的节点数为N，请实现时间复杂度低于O(N)的解法。
+
+
+int height(TreeNode *root){
+    return root==NULL? -1 : height(root->left)+1;
+}
+
+int countCompleteTree(TreeNode *root) {
+    int h=height(root);
+    int nums=0;
+    while(root!=NULL){
+        if(h-1==height(root->right)){
+            nums+=pow(2, h);
+            root=root->right;
+        }else{
+            nums+=pow(2, h-1);
+            root=root->left;
+        }
+        h--;
+    }
+    return nums;
+}
+
+第七、找到搜索二叉树中两个错误的节点
+
+一棵二叉树原本是搜索二叉树，但是其中有两个节点调换了位置，使得这棵二叉树不再是搜索二叉树，请按升序输出这两个错误节点的值。(每个节点的值各不相同
+
+vector<int>  findError(TreeNode* root) {
+    // write code here
+    vector<int>res;
+    
+    stack<TreeNode*>q;
+    TreeNode *cur = root;
+    TreeNode *p = NULL;
+    TreeNode *first = NULL;
+    TreeNode *second = NULL;
+    while(!q.empty()|| cur){
+         while(cur){
+             q.push(cur);
+             cur = cur->left;
+         }
+         TreeNode *node = q.top();
+         if(p && node ->val < p->val){
+              if(first == NULL){
+                  first = p;
+              }
+              second = node;
+         }
+         p = node;
+         q.pop();
+         if(node){
+           cur = node->right;
+         }
+    }
+    if (first && second ) {
+        if ( first->val < second->val) {
+            res.push_back(first->val);
+            res.push_back(second->val);
+            
+        } else {
+            res.push_back(second->val);
+            res.push_back(first->val);
+            
+        }
+
+    }
+    return res;
+}
+
+第八、讲有序数组转换成为平衡二叉搜索树
+
+
+TreeNode* convert(vector<int>& nums,int left,int right){
+    if(left>right) return 0;
+    int center=(left+right)/2;
+    TreeNode* head=new TreeNode(nums[center]);
+    head->left=convert(nums,left,center-1);
+    head->right=convert(nums,center+1,right);
+    return head;
+}
+
+TreeNode* sortedArrayToBST(vector<int>& nums) {
+    return convert(nums,0,nums.size()-1);
+}
+
+第八、 链表划分
+ 思路： 设置2个临时头节点less_head,more_head
+
+ListNode* partition(ListNode* head, int x) {
+    ListNode  *less_head =  new ListNode();
+    less_head->val = -1;
+    ListNode  *more_head = new ListNode();
+    more_head->val = - 1;
+    ListNode* less_ptr = less_head;
+    ListNode* more_ptr = more_head;
+    while(head){
+        if (head->val<x){
+            less_ptr->next = head;
+            less_ptr = less_ptr->next;
+        }
+        else{
+            more_ptr->next = head;
+            more_ptr = more_ptr->next;
+        }
+        head = head->next;
+    }
+    less_ptr->next = more_head->next;
+    more_ptr->next=NULL;
+    return less_head->next;
+}
+
+第九、 编写一个程序判断给定的数是否为丑数
+ 思路： 丑数就是只包含质因数 2, 3, 5 的正整数
+   注意： 1是丑数
+   
+bool TestRecursionMethod::  isUgly(int num) {
+     if(num==0) return false;
+     if(num==1) return true;
+     if(num%2==0) return isUgly(num/2);
+     if(num%3==0) return isUgly(num/3);
+     if(num%5==0) return isUgly(num/5);
+     return false;
+ }
+
+第十、字符串变形式
+   思路：两次翻转，
+   注意字符串到结尾时候和大小写切换
+
+string transWord(string str , int  n){
+     if(n == 0) {
+         return str;
+     }
+    reverse(str.begin(), str.end());
+    int start = 0;
+    for(int i = 0; i < n; i++){
+        if(str[i]!=' ' ){
+            if (str[i] >= 'a' && str[i] <='z') {
+                str[i]-=32;
+            }else if(str[i] >= 'A' && str[i] <='Z'){
+                 str[i]+=32;
+            }
+            if (i == n -1) {
+                reverse(str.begin()+start, str.end() );
+            }
+            
+        }else {
+            
+            reverse(str.begin()+start, str.begin() + i );
+            start = i+1;
+        }
+    }
+    return str;
+}
+
+第十一、 二叉树的之型层序遍历,二层从最右直到最左，第三层遍历从最左到最右
+
+vector<vector<int>> zigzagLevelOrder(TreeNode *root) {
+    vector<vector<int>> res;
+    deque<TreeNode *>q;
+    q.push_back(root);
+    bool leftToRigh = true;
+    while (!q.empty()) {
+        int nCount = (int)q.size();
+        vector<int>level(nCount);
+        for (int i = 0; i < nCount; i++) {
+            TreeNode *node = q.front();
+            q.pop_front();
+            if (node->left) {
+                q.push_back(node->left);
+            }
+            if (node->right) {
+                q.push_back(node->right);
+            }
+            
+            if (leftToRigh) {
+                level[i] = node->val;
+            } else {
+                level[nCount - 1 - i] = node->val;
+            }
+        }
+        leftToRigh = !leftToRigh;
+        res.push_back(level);
+    }
+    return res;
+}
+
+第十二、比较版本号
+
+
+void splictVersion(string str, vector<int>&vec){
+    
+    int nCount = (int)str.length();
+    int start  = 0;
+    for (int i = 0; i < nCount; i++) {
+        if (i == nCount - 1) {
+            string temp = str.substr(start,i-1);
+            vec.push_back(atoi(temp.c_str()));
+            break;
+        }else if (str[i] == '.'){
+            string temp = str.substr(start,i-1);
+            vec.push_back(atoi(temp.c_str()));
+            start = i+1;
+        }
+    }
+}
+
+int compareVersion(string v1, string v2) {
+    
+    vector<int>nums1;
+    splictVersion(v1, nums1);
+    vector<int>nums2;
+    splictVersion(v2, nums2);
+    int len = nums1.size() > nums2.size()?(int)nums1.size() : (int)nums2.size();
+    for (int i = 0; i < len; i++) {
+        
+        int data1 = i < nums1.size()?nums1[i] : 0 ;
+        int data2 = i < nums2.size()?nums2[i] : 0 ;
+        
+        if (data1> data2) {
+            return 1;
+        } else if(data1 < data2){
+            return -1;
+        }
+    }
+    
+    
+    return 0;
+}
+
+第十三、三个数最大乘积
+
+ 思路 ：要求出数组中最大的三个数以及最小的两个数，因此我们可以不用排序，用线性扫描直接得出这五个
+  为： max(nums[0] * nums[1] * nums[nums.length - 1], nums[nums.length - 1] * nums[nums.length - 2] * nums[nums.length - 3]);
+
+int maxThreeNumsProduct(vector<int> &nums) {
+    int min1 = INT_MAX,min2 = INT_MAX;
+    int max1 = INT_MIN,max2 = INT_MIN,max3 = INT_MIN;
+    
+    for (auto num : nums) {
+        if (num < min1) {
+            min2 = min1;
+            min1 = num;
+        }else if (num < min2){
+            min2 = num;
+        }
+        
+        if (num > max1) {
+            max3 = max2;
+            max2 = max1;
+            max1 = num;
+        }else if (num > max2){
+            max3 = max2;
+            max2 = num;
+            
+        }else if (num > max3){
+            max3 = num;
+        }
+    }
+    return max(max1*max2 *max3, min1 *min2 *max1);
+}
+
+第十四、最长重复子串
+  给出一个字符串S，返回其最长重复子串
+  输入：banana
+  输出 ana
+  思路： 后缀数组法
+  将字符串所有的后缀字符串存放在一个数组里，然后进行排序，遍历数组，寻找相邻两个字符串的最长公共前缀子串即为字符串的最长重复子串
+
+ string longestDupSubstring(string str) {
+    if (str.length() == 0||str.length() == 1) {
+        return "";
+    }
+    vector<string>strSecs;
+    for (int i = 0; i < str.length(); i++) {
+        strSecs.push_back(str.substr(i,str.length()));
+    }
+    sort(strSecs.begin(), strSecs.end());
+    string res = "";
+    int maxLen = INT_MIN;
+    for (int j = 0;j < strSecs.size() - 1;  j++) {
+        int len = lenTwoStr(strSecs[j], strSecs[j+1]);
+        if (len > maxLen) {
+            maxLen = len;
+            res = strSecs[j].substr(0,len);
+        }
+    }
+    return res;
+}
+
+第十五、 求平方根
+
+bool guessSqrt(int k , int x) {
+    return k*k <= x;
+}
+
+int  TestArrayMethod::mySqrt(int x) {
+    
+    int left = 1,right = x;
+    if (x == 0 || x ==1) {
+        return x;
+    }
+    int result = 1;
+    while (left <= right) {
+        int middle = (left + right)/2;
+        if (guessSqrt(middle, x)) {
+            result = middle;
+            left = middle + 1;
+        } else {
+            right = middle - 1;
+        }
+    }
+    return result;
+}
+
+第十六、 翻转整形数据
+  注意： 翻转时候用long ，防止溢出
+  
+int reverseInt(int x) {
+    bool flag = false;
+    if (x > 0) {
+        flag = true;
+    } else {
+        flag = false;
+        x*=-1;
+    }
+    long sum = 0;
+    while (x) {
+        sum= sum*10+x%10;
+        if (sum > INT_MAX) {
+            return 0;
+        }
+        x/=10;
+    }
+    if (flag) {
+        return (int)sum;
+    }
+    if (-sum < INT_MIN) {
+        return 0;
+    }
+    return (int)(-sum);
+}
+
+第十七、 对几万名员工的年龄排序，时间复杂度O（N），空间复杂度O（1)（用数组）
+
+void sortAge(vector<int> &staffs) {
+    
+    int maxYear = 100;
+    vector<int>nums(maxYear,0);
+    for(auto year : staffs) {
+        if (year <= 0 || year > 99) {
+            cout << "数据异常" <<endl;
+            break;
+        }
+        ++nums[year];
+    }
+    
+    int index = 0;
+    for (int  i = 0; i < 99; i++) {
+        for (int j = 0; j < nums[i]; j++) {
+            staffs[index] = i;
+            index++;
+        }
+    }
+}
+
+第十八、判断一个数是否是平衡二叉树
+
+思路： 首先各个子树左右子树的深度差是否小于等于1
+bool IsVALWithDepth(TreeNode *root, int *depth) {
+    if (!root) {
+        *depth = 0;
+        return true;
+    }
+    int leftDepth = 0;
+    int rightDepth = 0;
+    bool left = IsVALWithDepth(root->left, &leftDepth);
+    bool right = IsVALWithDepth(root->right, &rightDepth);
+    if (left && right) {
+        if (abs(leftDepth-rightDepth)<=1) {
+            *depth = leftDepth > rightDepth?(leftDepth + 1) : (rightDepth + 1);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool isBalance(TreeNode *tree){
+    int depth = 0;
+    return IsVALWithDepth(tree, &depth);
+}
+
+
+int  treeDepth(TreeNode *treeNode) {
+    if (!treeNode) {
+        return 0;
+    }
+    int left = treeDepth(treeNode->left);
+    int right = treeDepth(treeNode->right);
+    return left>right?(left+1):(right+1);
+}
+
+bool IsVAL(TreeNode *tree){
+    if (!tree) {
+        return true;
+    }
+    int leftDepth = treeDepth(tree->left);
+    int rightDepth = treeDepth(tree->right);
+    if (abs(leftDepth - rightDepth)<=1) {
+        return isBalance(tree->left) && isBalance(tree->right);
+    }
+    return false;
+}
+
+第十九、 最小编辑代价
+
+给定两个字符串 str1 和 str2，再给定三个整数 ic, dc 和 rc，分别代表插入、删除和替换1个字符的代价，
+  str1 = "abc", str2 = "adc", ic = 5, dc = 3, rc = 2.   ： "b"替换成"d"代价为 2
+  参照：https://blog.csdn.net/s448312891/article/details/80328294?utm_source=blogxgwz5
+  分析：
+  
+  如果 str1 的长度为 M，str2的长度为 N，采用动态规划的方法，时间复杂度为 O(M*N) ,额外的空间复杂度为O(M*N)
+
+        首先生成动态矩阵 dp[M+1][N+1]，其中 dp[i][j] 表示 st1[0,...,i-1] 编辑成 str2[0,...,j-1]的最小代价。
+
+      1. 首先动态矩阵的初始值 dp[0][0] = 0
+
+      2. 动态矩阵的第一列 dp[0,...,M-1][0] . dp[i][0] 表示 str1[0,...,i-1]编辑成空串的代价，即删除(dc)所有字符，
+
+          dp[i][0] = dc * i ；
+
+      3. 动态矩阵的第一行 dp[0][0,...,N-1] . dp[0][j] 表示 空串编辑成 str2[0,...,j-1]的代价，即插入(ic)所有字符，
+
+          dp[0][j] = ic * j ；
+
+      4. 其他位置进行填充 dp[i][j]
+
+          ① str1 先删除(dc)一个字符，dp[i][j] = dc + dp[i-1][j] ;
+
+                  具体来说，str1[0,...,i-1] 先删除 str[i-1]，得到 str1[0,...,i-2],  再由str1[0,..., i-2] 编辑成 str2[0,...,j-1].   (dp[i-1][j])
+
+          ② str2 后插入(ic)一个字符 ，dp[i][j] = dp[i][j-1] + ic ;
+
+                  具体来说，str1[0,...,i-1] 先编辑成 str2[0,..., j-2] (dp[i][j-1]), 再由 str2[0,...,j-2] 插入一个 str2[j-1] 编辑成str2[0,...,j-1]
+          ③ 若 str1[i-1]  != str2[j-1] ，替换(rc) str1[i-1] 的字符, dp[i][j] = dp[i-1][j-1] + rc ；
+
+              若 str1[i-1] == str2[j-1] , dp[i][j] = dp[i-1][j-1] ；
+              
+   注意：
+        当 3 种操作的代价都为 1 时，“编辑代价”就变成了“编辑距离”
+    
+        int mincost(string str1, string str2, int ic, int dc, int rc){
+            int row = str1.size() + 1;
+            int col = str2.size() + 1;
+            vector<vector<int>> dp(row, vector<int>(col, 0));
+            //考虑边界,第一列，第一行
+            for(int i = 1; i < row; i++){
+                dp[i][0] = dc * i;
+            }
+            for(int j = 1; j < col; j++){
+                dp[0][j] = ic * j;
+            }
+            //其他位置进行从左到右，从上到下的填充
+            for(int i = 1; i < row; i++){
+                for(int j = 1; j < col; j++){
+                    if(str1[i-1] != str2[j-1]){
+                        dp[i][j] = dp[i-1][j-1] + rc;
+                    }else{
+                        dp[i][j] = dp[i-1][j-1];
+                    }
+                    dp[i][j] = min(dp[i][j], dc + dp[i-1][j]);
+                    dp[i][j] = min(dp[i][j], dp[i][j-1] + ic);
+                }
+            }
+            return dp[row-1][col-1];
+}
+
+第二十、矩阵乘法
+        
+vector<vector<int> > solve(vector<vector<int> >& a, vector<vector<int> >& b) {
+
+        int row1 = a.size(),col1 = a[0].size();
+        int row2 = b.size(),col2 = b[0].size();
+ 
+        vector<vector<int>>res(row1,vector<int>(col2,0));
+        for(int i = 0; i < row1;i++){
+            for(int j = 0;j < col2;j++){
+                for(int k = 0;k <col1;k++){
+                    res[i][j]+=a[i][k]*b[k][j];
+                }
+            }
+            
+        }
+     return res;
+ }
+
+第二十一、顺时针旋转矩阵
+
+
+vector<vector<int> > rotateMatrix(vector<vector<int> > mat, int n) {
+     // write code here
+     for(int i=0;i<n/2;i++){
+         for(int j=0;j<n;j++)
+         {
+             swap(mat[i][j],mat[n-1-i][j]);
+         }}
+     for(int i=0;i<n;i++){
+         for(int j=0;j<i;j++)
+         {
+             swap(mat[i][j],mat[j][i]);
+         }
+}
+     return mat;
+ }

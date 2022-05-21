@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script src="./promise.js"></script>
+    <!-- <script>
+        // 三种状态
+        const PENDING = 'PENDING';
+        const FULFILLED = 'FULFILLED';
+        const REJECTED = 'REJECT';
+        function promiseResolutionProcedure(promise2, x, reslove, reject) {
+            if (promise2 === x && typeof promise2 === 'object') {
+                throw new Error('循环引用')
+            }
+            // 处理promise
+            if (x instanceof MyPromise) {
+                if (x.state === PENDING) {
+                    x.then(r => {
+                        promiseResolutionProcedure(promise2, r, reslove, reject)
+                        // reslove(r)
+                    }, reject)
+                } else {
+                    x.state === FULFILLED && reslove(x.val)
+                    x.state === REJECTED && reject(x.val)
+                }
+            }
+            // 判断thenable 对象
+            if ((typeof x === 'object' || typeof x === 'function') && x !== null) {
+                if (typeof x.then === 'function') {
+                    x.then(r => {
+                        promiseResolutionProcedure(promise2, r, reslove, reject)
+                        // reslove(r)
+                    }, reject)
+                } else {
+                    reslove(x)
+                }
+            } else {
+                reslove(x)
+            }
+        }
+        class MyPromise {
+            static all(promiseArray) {
+                return new MyPromise((reslove, reject) => {
+                    let resultArr = [];
+                    let successTime = 0;
+                    function processResult(index, data) {
+                        resultArr[index] = data;
+                        successTime++;
+                        if (successTime === promiseArray.length) {
+                            reslove(resultArr)
+                        }
+                    }
+                    for (let i = 0; i < promiseArray.length; i++) {
+                        promiseArray[i].then((data) => {
+                            processResult(i, data)
+                        }, err => {
+                            reject(err)
+                        })
+                    }
+                })
+            }
+            static resolve(x) {
+                return new MyPromise(reslove => {
+                    reslove(x)
+                })
+            }
+            constructor(fn) {
+                // 初始状态是PENDING
+                this.state = 'PENDING';
+                this.onFuilledCallBack = [];
+                this.onRejectedCallBack = [];
+                this.val = null;
+                const reslove = (val) => {
+                    if ((typeof val === "object" || typeof val === 'function') && val.then) {
+                        promiseResolutionProcedure(this, val, reslove, reject)
+                        return;
+                    }
+                    // 同步执行的时候需要放到异步任务队列中执行
+                    setTimeout(() => {
+                        //只允许reslove 执行一次
+                        if (this.state === PENDING) {
+                            this.state = FULFILLED;
+                            this.val = val;
+                            this.onFuilledCallBack.map(fn => fn())
+                        }
+                    })
+                };
+                const reject = (val) => {
+                    if ((typeof val === "object" || typeof val === 'function') && val.then) {
+                        promiseResolutionProcedure(this, val, reslove, reject)
+                        return;
+                    }
+                    // 同步执行的时候需要放到异步任务队列中执行
+                    setTimeout(() => {
+                        //只允许reslove 执行一次
+                        if (this.state === PENDING) {
+                            this.state = REJECTED;
+                            this.val = val;
+                            this.onRejectedCallBack.map(fn => fn())
+                        }
+                    })
+                };
+                fn(reslove, reject);
+            }
+            then(onFuilled = (val) => val, onRejected = (err) => err) {
+                // 处理已经完成的promise 
+                let promise2;
+                if (this.state === FULFILLED) {
+                    promise2 = new MyPromise((reslove, reject) => {
+                        const x = onFuilled(this.val);
+                        promiseResolutionProcedure(promise2, x, reslove, reject)
+                    })
+
+                }
+                if (this.state === REJECTED) {
+                    promise2 = new MyPromise((reslove, reject) => {
+                        const x = onRejected(this.val);
+                        promiseResolutionProcedure(promise2, x, reslove, reject)
+                    })
+
+                }
+                if (this.state === PENDING) {
+                    promise2 = new MyPromise((reslove, reject) => {
+                        this.onFuilledCallBack.push(() => {
+                            const x = onFuilled(this.val);
+                            promiseResolutionProcedure(promise2, x, reslove, reject)
+                        })
+                        this.onRejectedCallBack.push(() => {
+                            const x = onRejected(this.val);
+                            promiseResolutionProcedure(promise2, x, reslove, reject)
+                        })
+                    })
+                }
+                return promise2;
+            }
+        }
+    </script> -->
+    <script>
+        // 步骤1 异步的 promise， 在setTimeOut 中去 resolve ok
+        // new MyPromise((reslove) => {
+        //     setTimeout(() => {
+        //         reslove('步骤1')
+        //     }, 100)
+        // }).then((res) => {
+        //     console.log(res)
+        // })
+        // 步骤2实现一个promise 直接同步执行 resolve
+        // new MyPromise(reslove => {
+        //     console.log('步骤2')
+        // }).then((res) => { console.log(res) })
+        // 步骤3 实现一个 promise 防止 resolve 多次，通过判断  this.state === PENDING 只有 PENDING 才会进入
+        // new MyPromise(reslove=> {
+        //     reslove('步骤3')
+        //     reslove('步骤3.1')
+        // }).then((res)=> {
+        //     console.log(res)
+        // })
+        // 步骤4 实现一个promise 可以让then 方法链式调用
+        // 返回一个新的promise ， 新的resolve 执行传入的callback
+        // new MyPromise((reslove, reject) => {
+        //     reslove('step4')
+        // }).then(data => {
+        //     console.log('获取到数据', data)
+        //     return 'step4.1'
+        // }).then(res => {
+        //     console.log(res)
+        // })
+        // 步骤5实现一个 promise ，支持空的 then 函数
+        // 给then 方法设置一个默认方法
+        // new Promise(reslove => {
+        //     reslove('step5')
+        // }).then(data => {
+        //     console.log('获取数据', data)
+        //     return 'step5.1'
+        // }).then().then(data => {
+        //     console.log('获取到数据', data)
+        // })
+        // 步骤6 实现一个promise 支持thenable 对象  判断 then 传入的方法执行出来的是否是thenable 对象
+        // const promise = new MyPromise(reslove => {
+        //     reslove('step6')
+        // }).then(data => {
+        //     console.log('获取到数据', data);
+        //     return {
+        //         then(r) {
+        //             r('step6.1')
+        //         }
+        //     }
+        // }).then(data => {
+        //     console.log("获取到数据", data)
+        // })
+        //步骤7 实现一个promise ，支持then 传递 promise 对象, 判断 是否是myPromise
+        // const promise = new MyPromise((reslove) => {
+        //     reslove('step7')
+        // }).then(data => {
+        //     console.log('获取数据', data)
+        //     return new MyPromise(reslove => {
+        //         reslove('7.1')
+        //     })
+        // }).then(data => {
+        //     console.log('获取到数据', data)
+        // })
+        // 步骤8 实现一个promise ，resolve 传递 promise  判断 resolve 传进去的是否为 typeof val === "object" || typeof val === 'function' ，是的话直接执行
+        // new MyPromise((reslove) => {
+        //     reslove(
+        //         new MyPromise(reslove => {
+        //             reslove('step8')
+        //         })
+        //     );
+        // }).then(data => {
+        //     console.log('获取数据', data)
+        // })
+        // 步骤9 实现一个promise 处理then 中的 循环 promise
+        // const promise = new MyPromise((reslove) => {
+        //     reslove('step9')
+        // })
+        // const promise1 = promise.then(data => {
+        //     return promise1;
+        // })
+        // 步骤10 Promise.all
+        // MyPromise.all([MyPromise.resolve(1), MyPromise.resolve(2)]).then(dataList => {
+        //     console.log(dataList)
+        // })
+        // 步骤11 支持 rejected catch
+        // new MyPromise((reslove, reject) => {
+        //     reject('步骤11')
+        // }).then(data => {
+        //     console.log('接受数据', data)
+        // }, data => {
+        //     console.log('接受错误数据', data)
+        // })
+        // 步骤12 ， 同时执行 两次 promise.then, 支持完成态 或失败态
+        // const promise = new MyPromise(resolve => {
+        //     resolve(12)
+        // })
+        // setTimeout(() => {
+        //     promise.then(res => {
+        //         console.log(res)
+        //     })
+        //     promise.then(res => {
+        //         console.log(res)
+        //     })
+        // })
+    </script>
+</body>
+
+</html>

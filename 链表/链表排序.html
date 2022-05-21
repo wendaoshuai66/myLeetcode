@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    根据单链表的特点，最适于用归并排序
+    思路：通过快慢指针将链表切成前后两段，再进行归并排序，依次进行切分排序
+    <script>
+        class LinkNode {
+            constructor(val) {
+                this.val = val;
+                this.next = null;
+            }
+        }
+        class LinkList {
+            constructor() {
+                this.head = null;
+            }
+            addLast(node) {
+                if (this.head === null) {
+                    this.head = node;
+                    return;
+                }
+                let currentNode = this.head;
+                while (currentNode.next != null) {
+                    currentNode = currentNode.next;
+                }
+                currentNode.next = node;
+            }
+            batchNode(arr) {
+                for (const item of arr) {
+                    const node = new LinkNode(item);
+                    this.addLast(node);
+                }
+                return this.head;
+            }
+            sort(head) {
+                head = head;
+                if (head === null) {
+                    return head;
+                }
+                if (head.next === null) {
+                    return head;
+                }
+                let slow = head, fast = head, prev = head;
+                while (fast && fast.next) {
+                    prev = slow;
+                    fast = fast.next.next;
+                    slow = slow.next;
+                }
+                // prev.next = null;
+                return this.merge(this.sort(head), this.sort(slow))
+            }
+            merge(list1, list2) {
+                let newHead = new LinkNode(-1);
+                let newTail = newHead;
+                while (list1 && list2) {
+                    if (list1.val < list2.val) {
+                        newTail.next = list1;
+                        list1 = list1.next;
+                    } else {
+                        newTail.next = list2;
+                        list2 = list2.next;
+                    }
+                }
+
+                newTail = newTail.next;
+                // newTail.next = null;
+                if (list1) {
+                    newTail.next = list1;
+                }
+                if (list2) {
+                    newTail.next = list2;
+                }
+                return newTail;
+            }
+        }
+        let linkList = new LinkList();
+        // linkList.batchAdd([1, 2, 3, 4, 5, 6])
+
+        // console.log(linkList, '---linklist--')
+        // console.log(linkList.batchNode([4, 3, 1, 2, 9, 5]))
+        console.log(linkList.sort(linkList.batchNode([4, 3, 1, 2, 9, 5])))
+        function sortInList(head) {
+            function mergeSort(head) {
+                if (!head || !head.next) {
+                    return head;
+                }
+                let slow = head, fast = head, prev = head;
+                while (fast && fast.next) {
+                    prev = slow;
+                    slow = slow.next;
+                    fast = fast.next.next;
+                }
+                prev.next = null;
+                return merge(sortList(head), sortList(slow));
+            }
+            function merge(list1, list2) {
+                let newHead = new ListNode(-1);
+                let newTail = newHead;
+                while (list1 && list2) {
+                    if (list1.val <= list2.val) {
+                        newTail.next = list1;
+                        list1 = list1.next;
+                    } else {
+                        newTail.next = list2;
+                        list2 = list2.next;
+                    }
+                    newTail = newTail.next;
+                    newTail.next = null;
+                }
+                if (list1) {
+                    newTail.next = list1;
+                }
+                if (list2) {
+                    newTail.next = list2;
+                }
+                return newHead;
+            }
+        }
+    </script>
+</body>
+
+</html>

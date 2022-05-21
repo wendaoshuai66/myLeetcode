@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    基础base
+    var res = Max(
+    不抢
+    dp(num,start+1)
+    抢 去下下家
+    num[stat], dp(nums,start+2)
+    )
+    <script>
+        function rob(nums) {
+            var memo = {};
+            function dp(nums, start) {
+                if (start >= nums.length) {
+                    return 0;
+                }
+                if (memo[start]) {
+                    return memo[start];
+                }
+                memo[start] = Math.max(dp(nums, start + 1), nums[start] + dp(nums, start + 2));
+                return memo[start]
+
+            }
+            return dp(nums, 0)
+        }
+    </script>
+    优化 状态转移
+    关键思路 是比较 奇数偶数 之间对比 Math.max((nums[i] + memo[i - 2]), memo[i - 1])
+    <script>
+        function robs(nums) {
+            if (nums.length === 0) return 0;
+            if (nums.length === 1) return nums[0];
+            var memo = [];
+            memo[0] = nums[0];
+            memo[1] = Math.max(nums[1], nums[0]);
+
+            for (let i = 2; i < nums.length; ++i) {
+                memo.push(Math.max(memo[i - 1], (nums[i] + memo[i - 2])));
+            }
+            return memo.pop()
+        }
+    </script>
+</body>
+
+</html>

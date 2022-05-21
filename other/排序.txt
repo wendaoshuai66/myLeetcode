@@ -1,0 +1,169 @@
+/**
+ ****
+ 各种排序的时间复杂度统计
+ 哈希表的原理和概念
+ ***
+ */
+
+//冒泡排序
+- (void)bufferSort:(NSMutableArray*)list {
+    NSInteger count  = list.count;
+    id temp;
+    for (int i = 0; i < count -1 ; i++) {
+        for (int j = i + 1; j < count; j++) {
+            if ([[list objectAtIndex:j] integerValue] < [[list objectAtIndex:i] integerValue]) {
+                temp = list[i];
+                list[i] = list[j];
+                list[j] = temp;
+            }
+        }
+    }
+}
+
+//选择排序
+- (void)selectSort:(NSMutableArray *)array {
+    NSInteger count  = array.count;
+    id temp;
+    NSInteger min ;
+    for (int i = 0; i < count - 1; i++) {
+        min = i;
+        for (int j = i + 1; j < count; j++) {
+            if ([array[j] integerValue] < [array[min] integerValue]) {
+                min = j;
+            }
+        }
+        if (min!= i) {
+            temp = array[i];
+            array[i] = array[min];
+            array[min] = temp;
+        }
+    }
+}
+//插入排序
+- (void)insertSort:(NSMutableArray *)array {
+    if (array.count <= 1) {
+        return;
+    }
+    for (NSInteger i = 1; i < array.count; i++) {
+        
+        NSInteger j = i;
+        id tagget = array[i];
+        while (j > 0 && [tagget integerValue] < [array[j - 1] integerValue]) {
+            array[j] = array[j - 1];
+            j--;
+        }
+        array[j] = tagget;
+    }
+}
+
+//快速排序
+- (void)quickSort:(NSMutableArray *)array left:(NSInteger)left right:(NSInteger)right {
+    if (left >= right) {
+        return;
+    }
+    NSInteger pivotPointer = [self partition:array left:left right:right];
+    [self quickSort:array left:left right:pivotPointer - 1];
+    [self quickSort:array left:pivotPointer + 1 right:right];
+}
+
+- (NSInteger)partition:(NSMutableArray *)list left:(NSInteger)left right:(NSInteger)right {
+    id  minKey = list[left];
+    NSInteger  pivotPointer = left;
+    while (left < right) {
+        while (left < right && [list[right] integerValue] >= [minKey integerValue]) {
+            right--;
+        }
+        while (left < right && [list[left] integerValue] <= [minKey integerValue]) {
+            left++;
+        }
+        [self swap:list left:left right:right];
+    }
+    [self swap:list left:pivotPointer right:left];
+    return left;
+}
+
+- (void)swap:(NSMutableArray *)array left:(NSInteger)left right:(NSInteger)right {
+    id temp ;
+    temp = array[left];
+    array[left] = array[right];
+    array[right] = temp;
+}
+
+// 堆排序
+- (void) heapSort2:(NSMutableArray *)arr size:(NSInteger) size {
+    
+    //构建大根堆（从最后一个非叶子节点向上）
+    for(NSInteger i=size/2 - 1; i >= 0; i--) {
+        [self adjust:arr len:size start:i];
+    }
+    // 调整大根堆
+    for(NSInteger i = size - 1; i > 0; i--) {
+        [self swap:arr left:0 right:i];; // 将当前最大的放置到数组末尾
+        [self adjust:arr len:i start:0];// 将未完成排序的部分继续进行堆排序
+    }
+}
+
+// 递归方式构建大根堆(len是arr的长度，index是第一个非叶子节点的下标)
+- (void)adjust:(NSMutableArray *)arr len:(NSInteger)len start:(NSInteger) index {
+    NSInteger left =  2*index + 1; // index的左子节点
+    NSInteger right = 2*index + 2;// index的右子节点
+    NSInteger maxIdx = index;
+    if(left < len && [arr[left] integerValue] > [arr[maxIdx] integerValue])     maxIdx = left;
+    if(right<len && [arr[right] integerValue] > [arr[maxIdx] integerValue])     maxIdx = right;
+    if(maxIdx != index) {
+        [self swap:arr left:maxIdx right:index];
+        [self adjust:arr len:len start:maxIdx];
+    }
+}
+
+/*
+ * 将一个数组中的两个相邻有序区间合并成一个
+ *
+ * 参数说明：
+ * a -- 包含两个有序区间的数组
+ * start -- 第1个有序区间的起始地址。
+ * mid   -- 第1个有序区间的结束地址。也是第2个有序区间的起始地址。
+ * end   -- 第2个有序区间的结束地址。
+ *
+ 
+void merge(int* a, int start, int mid, int end) {
+    int *tmp = new int[end-start+1];    // tmp是汇总2个有序区的临时区域
+    int i = start;            // 第1个有序区的索引
+    int j = mid + 1;        // 第2个有序区的索引
+    int k = 0;                // 临时区域的索引
+    while(i <= mid && j <= end){
+        if (a[i] <= a[j])
+            tmp[k++] = a[i++];
+        else
+            tmp[k++] = a[j++];
+    }
+    while(i <= mid)
+        tmp[k++] = a[i++];
+    while(j <= end)
+        tmp[k++] = a[j++];
+    // 将排序后的元素，全部都整合到数组a中。
+    for (i = 0; i < k; i++)
+        a[start + i] = tmp[i];
+    delete[] tmp;
+}
+*/
+
+/*
+ * 归并排序(从上往下)
+ *https://www.cnblogs.com/skywang12345/p/3602369.html
+ * 参数说明：
+ * a -- 待排序的数组
+ * start -- 数组的起始地址
+ * endi -- 数组的结束地址
+ *
+void mergeSortUp2Down(int* a, int start, int end){
+    if(a==NULL || start >= end)
+        return ;
+    int mid = (end + start)/2;
+    mergeSortUp2Down(a, start, mid); // 递归排序a[start...mid]
+    mergeSortUp2Down(a, mid+1, end); // 递归排序a[mid+1...end]
+                                     // a[start...mid] 和 a[mid...end]是两个有序空间，
+                                     // 将它们排序成一个有序空间a[start...end]
+    merge(a, start, mid, end);
+}
+ */

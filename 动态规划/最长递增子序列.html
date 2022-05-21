@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    给定一个长度为 n 的数组 arr，求它的最长严格上升子序列的长度
+    大白话 [6,3,1,5,2,3,7] 1,2,3,7 长度为4 用动态规划合适不过了
+    <script>
+        function LIS(arr) {
+            let memo = {};
+            for (let i = 0; i < arr.length; i++) {
+                memo[i] = 1;
+            }
+            for (let i = 0; i < arr.length; i++) {
+                for (let j = 0; j < i; j++) {
+                    if (arr[i] > arr[j]) {
+                        memo[i] = Math.max(memo[i], memo[j] + 1)
+                    }
+                }
+            }
+            var res = 0;
+            for (const key in memo) {
+                res = Math.max(res, memo[key])
+            }
+            return res;
+        }
+    </script>
+</body>
+
+</html>

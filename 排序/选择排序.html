@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    选择排序是不稳定排序，数组中如果有相同的元素，交换后的位置可能不一致。
+    从数组的开头开始，将第一个元素和其他元素比，较最小的元素会被放到数组的第一个位置，在从第二个开始
+    <script>
+        function selectSort(arr) {
+            for (let i = 0; i < arr.length - 1; i++) {
+                let min = arr[i];
+                for (let j = i; j < arr.length; j++) {
+                    if (min > arr[j]) {
+                        [arr[i], arr[j]] = [arr[j], arr[i]];
+                    }
+                    console.log('循环次数')
+                }
+            }
+            return arr;
+        }
+        const array = [2, 3, 1, 9, 6, 4, 7, 8, 5];
+        // console.log(array.sort((a, b) => a - b))
+        console.log(selectSort(array))
+    </script>
+</body>
+
+</html>

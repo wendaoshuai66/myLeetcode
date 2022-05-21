@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    分4步骤
+    1. 词法分析器 tokenizer =》 tokens
+    2. 语法分析器 参数： 词法单元组tokens 输出ast
+    3. 转换器 参数ast
+    3-1 traverser 辅助函数
+    4 代码生成
+    参数新的ast 对象
+    <script>
+        // 将lisp 风格的语言编译成js风格的语言
+        // 编译入口方法 仓鼠： 原始代码字符串 input
+        function comoiler(input) {
+            // 生成token
+            let tokens = tokenizer(input)
+        }
+        // 词法分析器
+
+        function tokenizer(input) {
+            let current = 0; // 当前解析的字符串索引，作为游标
+            let tokens = [];
+            // 循环遍历原始代码
+            while (current < input.length) {
+                let char = input[current];
+            }
+        }
+    </script>
+</body>
+
+</html>
