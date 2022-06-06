@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        // 递归
+        function preorderTraversal(root) {
+            let res = [];
+            function traverse(root) {
+                if (root === null) {
+                    return;
+                }
+                res.push(root);
+                traverse(root.left)
+                traverse(root.right)
+            }
+            traverse(root);
+            return res;
+        }
+
+        function preorderTraversal1(root) {
+            let res = [];
+            while (true) {
+                if (root === null) {
+                    break;
+                }
+                res.push(root);
+                if (root.left) {
+                    root = root.left;
+                }
+                if (root.right) {
+                    root = root.right;
+                }
+            }
+            return res;
+        }
+
+
+    </script>
+</body>
+
+</html>
