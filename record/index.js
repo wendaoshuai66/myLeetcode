@@ -177,7 +177,7 @@ worker.onmessage = debounce((evt) => {
     }
     if (data.message && data.message === 'load_success') {
         console.log('success')
-        request()
+        // request()
     }
     // startPredict(vedioEle)
     // console.log(data, '---data--')
