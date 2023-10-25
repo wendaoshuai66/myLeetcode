@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 遍历 ===》 回溯
+        var invertTree = function (root) {
+                function traverse(root) {
+                    if (root === null) {
+                        return;
+                    }
+                    [root.left, root.right] = [root.right, root.left];
+
+                    traace(root.left)
+                    traace(root.right)
+                }
+                traverse(root);
+                return root;
+            };
+            // 分解法 ===》 动态规划
+            var invert = function (root) {
+                if (root === null) {
+                    return null;
+                }
+                let left = invert(root.left);
+                let right = invert(root.right);
+                root.left = right;
+                root.right = left;
+                return root;
+            }
+    </script>
+</body>
+</html>

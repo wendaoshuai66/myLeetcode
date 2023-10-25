@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 1.二叉树的最大深度
+        // 2.前序遍历
+        // 3.二叉树的直径
+        // 4.填充每个节点的下一个右侧节点指针
+
+        // 二叉树的最大深度
+        // 利用分解法
+        var maxDepth = function (root) {
+            if (root === null) {
+                return 0;
+            }
+            let left = maxDepth(root.left);
+            let right = maxDepth(root.right);
+            return 1 + Math.max(left, right)
+        }
+        // 利用遍历
+        var maxDepth = function (root) {
+            let depth = 0;
+            let res = 0;
+            function depthT(root) {
+                if (root === null) {
+                    return;
+                }
+                depth++;
+                res = Math.max(res, depth)
+                depthT(root.left);
+                depthT(root.right);
+                depth--;
+            }
+            depthT(root)
+            return res;
+        }
+        // 前序遍历
+        // 分解法
+        var preorderTraversal = function (root) {
+            let res = [];
+            if (root === null) {
+                return res;
+            }
+            res.push(root.val);
+            let left = preorderTraversal(root.left);
+            let right = preorderTraversal(root.right);
+            res = res.concat(left);
+            res = res.concat(right);
+            return res;
+        };
+        //遍历法
+        var preorderTraversal = function (root) {
+            let res = [];
+            if (root === null) {
+                return res;
+            }
+            res.push(root.val);
+            let left = preorderTraversal(root.left);
+            let right = preorderTraversal(root.right);
+            res = res.concat(left);
+            res = res.concat(right);
+            return res;
+        };
+
+        // 二叉树的直径 其实就是求左右子树的最大深度之和
+        function diameterOfBinaryTree(root) {
+            let deep = 0;
+            function diamete(root) {
+                if (root === null) {
+                    return 0;
+                }
+                let left = diamete(root.left);
+                let right = diamete(root.right);
+                deep = Math.max(deep, left + right)
+                return 1 + Math.max(left, right)
+            }
+            diamete(root)
+            return deep;
+        }
+
+        // 填充每个节点的下一个右侧节点指针
+        // 通过遍历进行解决，把其想象为三棵树 主要解决空隙问题
+        function connect(root) {
+            if (root === null) {
+                return root;
+            }
+            function connectNode(node1, node2) {
+                if (node1 === null || node2 === null) {
+                    return;
+                }
+                node1.next = node2;
+                connectNode(node1.left, node1.right);
+                connectNode(node2.left, node2.right);
+                // 不是同一个父节点 解决空隙问题
+                connectNode(node1.right, node2.left);
+            }
+            connectNode(root.left, root.right);
+            return root;
+        }
+
+        // 该题也可以通过层序遍历解决 这样子就简单了
+        function connect(root) {
+            if (root === null) {
+                return root;
+            }
+            const q = [];
+            q.push(root);
+            while (q.length) {
+                let len = q.length;
+                // 遍历一层的时候
+                let pre = null;
+                for (let i = 0; i < len; i++) {
+                    let node = q.shift();
+                    if (pre !== null) {
+                        pre.next = node;
+                    }
+                    pre = node;
+                    if (node.left) {
+                        q.push(node.left);
+                    }
+                    if (node.right) {
+                        q.push(node.right);
+                    }
+                }
+            }
+            return root;
+        }
+    </script>
+</body>
+</html>
