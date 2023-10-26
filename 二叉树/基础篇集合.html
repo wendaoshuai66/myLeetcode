@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
     <script>
         // 1.二叉树的最大深度
         // 2.前序遍历
         // 3.二叉树的直径
         // 4.填充每个节点的下一个右侧节点指针
+        // 5.将二叉树展开为链表
+        // 6. 子结构判断
+        // 7. 最大二叉树
+        // 8.中序与前序序遍历序列构造二叉树
+        // 9.中序与后序遍历序列构造二叉树
+        // 10. 通过后序和前序遍历结果构造二叉树
 
         // 二叉树的最大深度
         // 利用分解法
@@ -130,6 +138,139 @@
             }
             return root;
         }
+
+        // 二叉树的构造问题一般都是使用「分解问题」的思路：构造整棵树 = 根节点 + 构造左子树 + 构造右子树。
+
+        // 将二叉树展开为链表
+        function flatten(root) {
+            if (root) {
+                return;
+            }
+            flatten(root.left);
+            flatten(root.right);
+            let left = root.left;
+            let right = root.right;
+            root.right = left;
+            root.left = null;
+
+            let p = root;
+            while (p.right !== null) {
+                p = p.right;
+            }
+            p.right = right;
+        }
+
+
+        // 最大二叉树
+
+        var constructMaximumBinaryTree = function (nums) {
+            if (nums.length === 0) {
+                return null;
+            }
+            let maxI = 0;
+            let maxVal = nums[maxI];
+            for (let i = 0; i < nums.length; i++) {
+                maxVal = Math.max(nums[i], maxVal);
+                if (maxVal === nums[i]) {
+                    maxI = i;
+                }
+            }
+            const root = new TreeNode(maxVal);
+            root.left = constructMaximumBinaryTree(nums.slice(0, i));
+            root.right = constructMaximumBinaryTree(nums.slice(0, i));
+            return root;
+        }
+
+        //  从中序与前序遍历序列构造二叉树
+
+        // 构造二叉树主要其实就是找跟节点过程
+
+        var buildTree = function (preorder, inorder) {
+            let indexMap = new Map();
+            for (let i = 0, len = inorder.length; i < len; i++) {
+                indexMap.set(inorder[i], i)
+            }
+            function build(preorder, preIndex, preEnd, inorder, inIndex, inEnd) {
+                if (preIndex > preEnd || inIndex > inEnd) {
+                    return null;
+                }
+                let rootVal = preorder[preIndex];
+                let index = indexMap.get(rootVal);
+                let root = new TreeNode(rootVal);
+                let size = index - inIndex;
+
+                root.left = build(preorder, preIndex + 1, preIndex + size, inorder, inIndex, index - 1);
+                root.right = build(preorder, preIndex + size + 1, preEnd, inorder, index + 1, inEnd);
+                return root;
+            }
+            return build(preorder, 0, preorder.length - 1, inorder, 0, inorder.length - 1)
+        }
+
+        // 从中序与后序遍历序列构造二叉树
+        var buildTree = function (inorder, postorder) {
+            let indexMap = new Map();
+            for (let i = 0, len = inorder.length; i < len; i++) {
+                indexMap.set(inorder[i], i)
+            }
+            function build(inorder, inStart, inEnd, postorder, postStart, postEnd) {
+                if (inStart > inEnd || postStart > postEnd) {
+                    return null;
+                }
+                let rootVal = postorder[postEnd];
+                let index = indexMap.get(rootVal);
+                let root = new TreeNode(rootVal);
+                let size = index - inStart;
+                let rightSize = inEnd - index;
+                root.left = build(inorder, inStart, index - 1, postorder, postStart, postStart + size - 1);
+                root.right = build(inorder, index + 1, inEnd, postorder, postEnd - rightSize, postEnd - 1);
+                return root;
+            }
+            return build(inorder, 0, inorder.length - 1, postorder, 0, postorder.length - 1);
+        };
+
+        // 通过后序和前序遍历结果构造二叉树
+
+
+        var constructFromPrePost = function (preorder, postorder) {
+            const valToIndex = new Map();
+            for (let i = 0, len = postorder.length; i < len; i++) {
+                valToIndex.set(postorder[i], i);
+            }
+            function build(preorder, preStart, preEnd, postorder, postStart, postEnd) {
+                if (preStart > preEnd) {
+                    return null;
+                }
+                if (preStart === preEnd) {
+                    return new TreeNode(preorder[preStart]);
+                }
+
+                // root 节点对应的值就是前序遍历数组的第一个元素
+                var rootVal = preorder[preStart];
+                // root.left 的值是前序遍历第二个元素
+                // 通过前序和后序遍历构造二叉树的关键在于通过左子树的根节点
+                // 确定 preorder 和 postorder 中左右子树的元素区间
+                var leftRootVal = preorder[preStart + 1];
+                // leftRootVal 在后序遍历数组中的索引
+                var index = valToIndex.get(leftRootVal);
+                // 左子树的元素个数
+                var leftSize = index - postStart + 1;
+
+                // 先构造出当前根节点
+                var root = new TreeNode(rootVal);
+
+
+                // 递归构造左右子树
+                // 根据左子树的根节点索引和元素个数推导左右子树的索引边界
+                root.left = build(preorder, preStart + 1, preStart + leftSize,
+                    postorder, postStart, index, valToIndex);
+                root.right = build(preorder, preStart + leftSize + 1, preEnd,
+                    postorder, index + 1, postEnd - 1, valToIndex);
+
+                return root;
+            }
+            return build(preorder, 0, preorder.length - 1, postorder, 0, postorder.length - 1)
+        };
     </script>
 </body>
+
 </html>
