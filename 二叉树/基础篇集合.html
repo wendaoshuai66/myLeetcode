@@ -180,6 +180,27 @@
             root.right = constructMaximumBinaryTree(nums.slice(0, i));
             return root;
         }
+        // 封装之后
+        var constructMaximumBinaryTree = function (nums) {
+            function build(nums, low, high) {
+                if (low > high) {
+                    return null;
+                }
+                let maxVal = nums[low];
+                let index = low;
+                for (let i = low; i <= high; i++) {
+                    maxVal = Math.max(nums[i], maxVal);
+                    if (maxVal === nums[i]) {
+                        index = i;
+                    }
+                }
+                let root = new TreeNode(maxVal);
+                root.left = build(nums, low, index - 1);
+                root.right = build(nums, index + 1, high);
+                return root;
+            }
+            return build(nums, 0, nums.length - 1)
+        };
 
         //  从中序与前序遍历序列构造二叉树
 
