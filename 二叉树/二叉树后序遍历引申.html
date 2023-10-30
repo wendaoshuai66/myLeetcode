@@ -8,89 +8,89 @@
 <body>
     <script>
         // 前序位置的代码只能从函数参数中获取父节点传递来的数据，而后序位置的代码不仅可以获取参数数据，还可以获取到子树通过函数返回值传递回来的数据
-            // 换句话发现题目和子树有关，那大概率要给函数设置合理的定义和返回值，在后序位置写代码了。
+        // 换句话发现题目和子树有关，那大概率要给函数设置合理的定义和返回值，在后序位置写代码了。
 
-            // 1. 一棵二叉树有多少节点
-            // 2. 寻找重复的子树
+        // 1. 一棵二叉树有多少节点
+        // 2. 寻找重复的子树
 
-            // 一棵二叉树有多少节点
-            var count = function (root) {
-                if (root === null) {
-                    return 0;
-                }
-                // 先算出左右子树多少节点
-                let left = count(root.left);
-                let right = count(root.right);
-                // 后序位置，子树加上自己，就是整棵二叉树的节点数
-                let res = left + right + 1;
-                return res;
+        // 一棵二叉树有多少节点
+        var count = function (root) {
+            if (root === null) {
+                return 0;
             }
+            // 先算出左右子树多少节点
+            let left = count(root.left);
+            let right = count(root.right);
+            // 后序位置，子树加上自己，就是整棵二叉树的节点数
+            let res = left + right + 1;
+            return res;
+        }
 
-            // 寻找重复的子树
-            // 解决该题目两个关键点1. 罗列出每个节点 2. 如何对比节点 所谓的知彼知己
+        // 寻找重复的子树
+        // 解决该题目两个关键点1. 罗列出每个节点 2. 如何对比节点 所谓的知彼知己
 
-            function findDuplicateSubtrees(root) {
-                let res = [];
-                let subMap = new Map();
-                function serialize(root) {
-                    if (root === null) {
-                        return '#'
-                    };
-                    let left = serialize(root.left);
-                    let right = serialize(root.right);
-                    // 如何对比节点
-                    let s = left + ',' + right + ',' + root.val;
-                    // 罗列出每个节点
-                    let n = subMap.get(s) || 0;
-                    // 多次重复也只会被加入结果集一次
-                    if (n === 1) {
-                        res.push(root);
-                    }
-                    subMap.set(s, n + 1);
-                    return s;
-                }
-                serialize(root);
-                return res;
-            }
-
-            // 二叉树的序列化与反序列化
-            // 问题 此题通过二叉树不同的遍历是否都能得出结果 ？
-            // 序列化
-            var serialize = function (root) {
+        function findDuplicateSubtrees(root) {
+            let res = [];
+            let subMap = new Map();
+            function serialize(root) {
                 if (root === null) {
-                    return '#';
-                }
+                    return '#'
+                };
                 let left = serialize(root.left);
                 let right = serialize(root.right);
-                let meySelf = left + ',' + right + ',' + root.val;
-                return meySelf;
-            };
-
-            /**
-             * Decodes your encoded data to tree.
-             *
-             * @param {string} data
-             * @return {TreeNode}
-             */
-            var deserialize = function (data) {
-                let nums = data.split(',');
-                function dRialize(nums, start, end) {
-                    if (start > end) {
-                        return null;
-                    }
-                    if (nums[start] === '#' || nums[end] === '#') {
-                        return null;
-                    }
-                    let size = (end - start) / 2;
-                    let left = end - size;
-
-                    let root = new TreeNode(nums[end]);
-                    root.left = dRialize(nums, start, left);
-                    root.right = dRialize(nums, left + 1, end);
-                    return root;
+                // 如何对比节点
+                let s = left + ',' + right + ',' + root.val;
+                // 罗列出每个节点
+                let n = subMap.get(s) || 0;
+                // 多次重复也只会被加入结果集一次
+                if (n === 1) {
+                    res.push(root);
                 }
-                return dRialize(nums);
-            };
+                subMap.set(s, n + 1);
+                return s;
+            }
+            serialize(root);
+            return res;
+        }
+
+        // 二叉树的序列化与反序列化
+        // 问题 此题通过二叉树不同的遍历是否都能得出结果 ？
+        // 序列化
+        var serialize = function (root) {
+            if (root === null) {
+                return '#';
+            }
+            let left = serialize(root.left);
+            let right = serialize(root.right);
+            let meySelf = left + ',' + right + ',' + root.val;
+            return meySelf;
+        };
+
+        /**
+         * Decodes your encoded data to tree.
+         *
+         * @param {string} data
+         * @return {TreeNode}
+         */
+        var deserialize = function (data) {
+            let nums = data.split(',');
+            function dRialize(nums, start, end) {
+                if (start > end) {
+                    return null;
+                }
+                if (nums[start] === '#' || nums[end] === '#') {
+                    return null;
+                }
+                let size = (end - start) / 2;
+                let left = end - size;
+
+                let root = new TreeNode(nums[end]);
+                root.left = dRialize(nums, start, left);
+                root.right = dRialize(nums, left + 1, end);
+                return root;
+            }
+            return dRialize(nums);
+        };
 
     </script>
 </body>
