@@ -12,6 +12,7 @@
 
         // 1. 一棵二叉树有多少节点
         // 2. 寻找重复的子树
+        // 3. 归并排序
 
         // 一棵二叉树有多少节点
         var count = function (root) {
@@ -90,6 +91,42 @@
                 return root;
             }
             return dRialize(nums);
+        };
+
+        // 归并排序
+        var sortArray = function (nums) {
+            let temps = new Array(nums.length);
+            function sort(nums, low, high) {
+                if (low >= high) {
+                    return;
+                }
+                let mid = Math.floor((low + high) / 2);
+                sort(nums, low, mid);
+                sort(nums, mid + 1, high);
+
+                merge(nums, low, mid, high);
+            }
+            function merge(nums, low, mid, high) {
+                for (let i = low; i <= high; i++) {
+                    temps[i] = nums[i];
+                }
+                let i = low; j = mid + 1;
+                for (let p = low; p <= high; p++) {
+                    if (mid + 1 === i) {
+                        // 左边区间已合并
+                        nums[p] = temps[j++];
+                    } else if (high + 1 === j) {
+                        // 右边区间已合并
+                        nums[p] = temps[i++]
+                    } else if (temps[i] > temps[j]) {
+                        nums[p] = temps[j++];
+                    } else {
+                        nums[p] = temps[i++];
+                    }
+                }
+            }
+            sort(nums, 0, nums.length - 1);
+            return nums;
         };
 
     </script>
