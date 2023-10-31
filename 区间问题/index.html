@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+     解决区间问题 两个关键 
+     1. 排序 要么对齐起点排序 要么对齐重点排序
+     2. 就是画图 提示画图 就是按照 下标然后 把排好序的区间进行对比
+
+    <script>
+        //合并区间
+        var merge = function (intervals) {
+            let res = [];
+            intervals.sort((a,b)=> a[0]-b[0]);
+            res.push(intervals[0])
+            for (let i=1;i<intervals.length; i++) {
+                let curr = intervals[i];
+                let last = res[res.length-1];
+                if (curr[0] <= last[1]) {
+                    res[res.length - 1][1] = Math.max(curr[1], last[1])
+                } else {
+                    res.push(curr);
+                }
+            }  
+            return res;
+        };
+    </script>
+</body>
+</html>
