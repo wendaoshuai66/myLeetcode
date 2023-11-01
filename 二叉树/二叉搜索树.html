@@ -6,6 +6,103 @@
     <title>Document</title>
 </head>
 <body>
-    <script></script>
+    <script>
+        // 二叉搜索树
+            // 二叉搜索树 简称BST 
+            //（1.）对于BST 的每个节点node ，左子树的值都比node节点的值小， 右子树的值都比node 节点值大
+            //（2.） 对于BST 的每个节点node ，它的左子树和右子树都是BST
+            // 二叉树并不复杂 但是它可以是数据结构的半壁江山 直接基于 BST 的数据结构有 AVL 树，红黑树等等，拥有了自平衡性质，可以提供 logN 级别的增删查改效率；还有 B+ 树，线段树等结构都是基于 BST 的思想来设计的
+
+            import { helper } from "echarts";
+
+            // 1. 二叉搜索树中第K小的元素
+            // 2. 把二叉搜索树转换为累加树 (从二叉搜索树到更大和树) 两个是一个题
+            // 3. 验证二叉搜索树
+            // 4. 二叉搜索树中的搜索
+            // 5. 二叉搜索树中的插入操作
+            // 二叉搜索树中第K小的元素 ===> 其实就是二叉搜索树按照中序遍历出来就是升序
+            var kthSmallest = function (root, k) {
+                let rank = 0;
+                let res = 0;
+                function traverse(root, k) {
+                    if (root === null) {
+                        return;
+                    }
+                    traverse(root.left, k);
+                    rank++;
+                    if (rank === k) {
+                        res = root.val;
+                        return;
+                    }
+                    traverse(root.right, k);
+                }
+                traverse(root, k);
+                return res;
+            };
+
+            // 如果让你实现一个在二叉搜索树中通过排名计算对应元素的方法 select(int k)，你会怎么设计？
+            // 根据这个问题 就得出中序遍历有多好  TreeNode 添加 size 属性 然后 根据左小右大原则很快就能得出结果
+            //  把二叉搜索树转换为累加树 (从二叉搜索树到更大和树) 两个是一个题
+            // 其实就是利用了 二叉搜素树的左小右大原则 中序遍历
+            var bstToGst = function (root) {
+                let sum = 0;
+                function traverse(root) {
+                    if (root === null) {
+                        return;
+                    }
+                    traverse(root.right);
+                    sum += root.val;
+                    root.val = sum;
+                    traverse(root.left);
+                }
+                traverse(root);
+                return root;
+            };
+
+            // 根据上面两道题总结其实二叉搜索树就是要么优化算法 要么就是利用中序遍历满足其题目条件
+
+            //验证二叉搜索树
+            // 提示就是本身节点比它左子树所有节点都大 本身节点比它左子树所有节点都小  通过扩充参数方法来解决此问题 递归中很经常用到
+            var isValidBST = function (root) {
+                return helperBST(root, null, null);
+                function helperBST(root, min, max) {
+                    if (root === null) return true;
+                    // 根据其val 最大最小来解决
+                    // 若 root.val 不符合 max 和 min 的限制，说明不是合法 BST
+                    if (min !== null && root.val <= min) return false;
+                    if (max !== null && root.val >= max) return false;
+                    // 限定左子树的最大值是root.val，右子树的最小值是root.val
+                    return helperBST(root.left, min, root.val) && helperBST(root.right, root.val, max)
+                }
+            };
+
+            // 二叉搜索树中的搜索
+
+            // 其实类似二分查找
+            var searchBST = function (root, val) {
+                if (root === null) {
+                    return null;
+                }
+                if (root.val > val) {
+                    return searchBST(root.left, val)
+                }
+                if (root.val < val) {
+                    return searchBST(root.right, val)
+                }
+                return root;
+            };
+            var insertIntoBST = function (root, val) {
+                if (root === null) {
+                    return new TreeNode(val);
+                }
+                if (root.val > val) {
+                    root.left = insertIntoBST(root.left, val)
+                }
+                if (root.val < val) {
+                    root.right = insertIntoBST(root.right, val)
+                }
+                return root;
+            };
+    </script>
 </body>
 </html>
