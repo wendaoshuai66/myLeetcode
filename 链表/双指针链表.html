@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 1. 合并两个有序链表
+        // 2.  分隔链表
+        //合并两个有序链表
+        var mergeTwoLists = function (l1, l2) {
+            let dumy = new ListNode(-1), p = dumy;
+            let p1 = l1, p2 = l2;
+            while (p1 !== null && p2 !== null) {
+                if (p1.val < p2.val) {
+                    p.next = p1;
+                    p1 = p1.next;
+                } else {
+                    p.next = p2;
+                    p2 = p2.next;
+                }
+                p = p.next;
+            }
+            if (p1) {
+                p.next = p1;
+            }
+            if (p2) {
+                p.next = p2;
+            }
+            return dumy.next;
+        };
+
+        var partition = function (head, x) {
+            let dumy1 = new ListNode(-1), p1 = dumy1, dumy2 = new ListNode(-1), p2 = dumy2;
+            let p = head;
+            while (p != null) {
+                if (p.val < x) {
+                    p1.next = p;
+                    p1 = p1.next;
+                } else {
+                    p2.next = p;
+                    p2 = p2.next;
+                }
+                // 你不断开原链表中的每个节点的 next 指针，那么就会出错，因为结果链表中会包含一个环
+                let temp = p.next;
+                p.next = null;
+                p = temp;
+            }
+            p1.next = dumy2.next;
+            return dumy1.next;
+        }
+    </script>
+</body>
+</html>
