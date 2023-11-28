@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // Git原理之最近公共祖先 (简称：LAC)
+
+            // 1.寻找一个元素
+            // 2. 二叉树的最近公共祖先
+
+            // 1.寻找一个元素
+            var find = function (root, val) {
+                if (root === null) {
+                    return null;
+                }
+
+                if (root.val === val) {
+                    return root;
+                }
+                var left = find(root.left, val);
+                var right = find(root.right, val);
+                return left !== null ? left : right;
+            }
+
+            // 2. 二叉树的最近公共祖先
+
+            // 提示 就是 一个子树能在它的左右子树都能找到该节点 那么就是最近公共祖先
+
+            var lowestCommonAncestor = function (root, p, q) {
+
+                function find(root, val1, val2) {
+                    if (root === null) {
+                        return null;
+                    }
+                    if (root.val === val1 || root.val === val2) {
+                        return root;
+                    }
+                    let left = find(root.left, val1, val2);
+                    let right = find(root.right, val1, val2);
+                    if (left !== null && right !== null) {
+                        return root;
+                    }
+                    return left !== null ? left : right;
+                }
+
+                return find(root, p.val, q.val);
+            };
+
+    </script>
+</body>
+</html>
