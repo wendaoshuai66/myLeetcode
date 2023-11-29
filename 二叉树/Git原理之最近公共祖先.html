@@ -11,6 +11,9 @@
 
             // 1.寻找一个元素
             // 2. 二叉树的最近公共祖先
+            // 3. 二叉树的最近公共祖先 IV
+            // 4. 二叉树的最近公共祖先 II
+            // 5. 二叉搜索树的最近公共祖先
 
             // 1.寻找一个元素
             var find = function (root, val) {
@@ -31,7 +34,6 @@
             // 提示 就是 一个子树能在它的左右子树都能找到该节点 那么就是最近公共祖先
 
             var lowestCommonAncestor = function (root, p, q) {
-
                 function find(root, val1, val2) {
                     if (root === null) {
                         return null;
@@ -49,6 +51,87 @@
 
                 return find(root, p.val, q.val);
             };
+
+            // 二叉树的最近公共祖先 IV
+            // 题目描述 依然给你输入一棵不含重复值的二叉树，
+            // 但这次不是给你输入 p 和 q 两个节点了，而是给你输入一个包含若干节点的列表 nodes（这些节点都存在于二叉树中），让你算这些节点的最近公共祖先
+
+            var lowestCommonAncestorIV = function (root, nodes) {
+                let valuse = new Set();
+                for (let node of nodes) {
+                    valuse.add(node.val);
+                }
+                function find(root, values) {
+                    if (root === null) {
+                        return null;
+                    }
+                    if (valuse.has(root.val)) {
+                        return root;
+                    }
+                    let left = find(root.left, values);
+                    let right = find(root.right, values);
+                    if (left !== null && right !== null) {
+                        return root;
+                    }
+                    return left !== null ? left : right;
+                }
+                return find(root, values);
+            };
+
+            // 二叉树的最近公共祖先 II
+            // 给你输入一棵不含重复值的二叉树的，以及两个节点 p 和 q，
+            // 如果 p 或 q 不存在于树中，则返回空指针，否则的话返回 p 和 q 的最近公共祖先节点。
+
+            // 怎么能完全遍历整个树知道是否存在p 或者 q 
+
+            var lowestCommonAncestorII = function (root, p, q) {
+                let findP = false;
+                let findQ = false;
+                function find(root, val1, val2) {
+                    if (root === null) {
+                        return null;
+                    }
+
+                    let left = find(root.left, values);
+                    let right = find(root.right, values);
+                    // 后序遍历便能完全知道
+                    if (left !== null && right !== null) {
+                        return root;
+                    }
+                    if (root.val === val1 || root.val === val2) {
+                        if (root.val === val1) findP = true;
+                        if (root.val === val2) findQ = true;
+                        return root;
+                    }
+                    return left !== null ? left : right;
+                }
+                let res = find(root, p.val, q.val);
+                if (!findP || !findQ) return null;
+                return res;
+            }
+
+            // 二叉搜索树的最近公共祖先
+            //  对BST 来说，根本不需要老老实实去遍历子树，由于 BST 左小右大的性质，将当前节点的值与 val1 和 val2 作对比即可判断当前节点是不是 LCA
+            var lowestCommonAncestor = function (root, p, q) {
+                var val1 = Math.min(p.val, q.val);
+                var val2 = Math.max(p.val, q.val);
+                function find(root, val1, val2) {
+                    if (root === null) {
+                        return root;
+                    }
+                    if (root.val > val2) {
+                        return find(root.left, val1, val2);
+                    }
+                    if (root.val < val1) {
+                        return find(root.right, val1, val2);
+                    }
+                    // val1 <= root.val <= val2
+                    return root;
+                }
+                var res = find(root, val1, val2);
+                return res;
+            }
+
 
     </script>
 </body>
