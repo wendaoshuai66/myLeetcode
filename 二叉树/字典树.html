@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 前缀树 又叫字典树 单词查找树，是一种二叉树衍生出来的高级数据结构
+            // 主要应用场景 是处理字符串前缀相关问题
+
+            class TrieNode {
+                constructor() {
+                    this.val = null;
+                    this.children = {};
+                }
+            }
+            // 工具函数
+
+            function put(node, key, val, i) {
+                if (!node) {
+                    node = new TrieNode();
+                }
+                if (key.length === i) {
+                    node.val = val;
+                    return node;
+                }
+                let c = key.charAt(i);
+                node.children[c] = put(node.children[c], key, i + 1);
+                return node;
+            }
+
+            // 从节点 node 开始搜索 key，如果存在返回对应节点，否则返回 null
+            function getNode(node, key) {
+                let p = node;
+                for (let i = 0; i < key.length; i++) {
+                    if (!p) {
+                        // 无法向下搜索
+                        return null;
+                    }
+                    let c = key.charAt(i);
+                    p = node.children[c];
+                }
+                return p;
+            }
+
+            function romove(node, key, i) {
+                if (!node) {
+                    return null;
+                }
+                if (key.length === i) {
+                    node.val = null;
+                } else {
+                    let c = key.charAt(i);
+                    node.children[c] = romove(node.children[c], key, i + 1);
+                }
+                if (node.val !== null) {
+                    return node;
+                }
+                if (!Object.keys(node.children).length) {
+                    return node;
+                }
+                // 既没有val 又没有后缀树枝， 则该节点别删除
+                return null;
+            }
+
+            class TrieMap {
+                // 构造函数
+                constructor() {
+                    this.size = 0;
+                    this.root = new TrieNode();
+                }
+                // 在 map 中添加key
+                put(key, val) {
+                    if (!this.containsKey(key)) {
+                        this.size++;
+                    }
+                    this.root = put(this.root, key, val, 0);
+                }
+                // 删除健 key 及对应的值
+                romove(key) {
+                    if (!this.containsKey(key)) {
+                        return;
+                    }
+                    this.root = romove(this.root, key, 0);
+                    this.size--;
+                }
+                // 搜索key 对应的值 不存在则返回null
+                // get('the') ===> 4
+                // get('tha) ===> null
+                // getNode 返回 x 为非空 只能说key字符串是一个前缀 除非x.val 同时非空 才能判断key 存在
+                get(key) {
+                    const x = getNode(this.root, key);
+                    if (x === null || x.val === null) {
+                        return null;
+                    }
+                    return x.val;
+                }
+                // 判断key是否存在map
+                // containsKey('tea') ===> false
+                // containsKey('the') ===> true
+                containsKey(key) {
+                    return this.get(key) !== null;
+                }
+                // 在Map 的所有健中搜索query 的最短前缀
+                // shortestPrefixOf('themxyz') ===》 the
+                shortestPrefixOf(query) {
+                    let p = this.root;
+                    for (let i = 0; i < query.length; i++) {
+                        if (p === null) {
+                            // 无法向下搜索了
+                            return '';
+                        }
+                        if (p.val !== null) {
+                            // 找到一个键是query的前缀
+                            return query.substring(0, i);
+                        }
+                        let c = query.charAt(i);
+                        p = p.children[c];
+                    }
+                    if (p !== null && p.val !== null) {
+                        return query;
+                    }
+                    return '';
+                }
+                // 在Map 的所有健中搜索query 的最长前缀
+                // 既然实现了最短，最长前缀就很简单了 其实就是加个变量记录一下就好
+                longestPrefixOf(query) {
+                    let p = this.root;
+                    let max_len = 0;
+                    for (let i = 0; i < query.length; i++) {
+                        if (p === null) {
+                            // 无法向下搜索了
+                            return '';
+                        }
+                        if (p.val !== null) {
+                            // 找到一个键是query的前缀
+                            max_len = i;
+                        }
+                        let c = query.charAt(i);
+                        p = p.children[c];
+                    }
+                    if (p !== null && p.val !== null) {
+                        return query;
+                    }
+                    return query.substring(0, max_len);
+                }
+                // 搜索前缀为prefix 的健
+                // keysWithPrefix("th") -> ["that", "the", "them"]
+                keysWithPrefix(prefix) { }
+                // 判断是和否存在前缀为 prefix 的键
+                hasWithPrefix(prefix) { }
+                // 通配符 . 匹配任意字符，搜索所有匹配的键
+                // keysWithPattern("t.a.") -> ["team", "that"]
+                keysWithPattern(pattern) { }
+                // 通配符 . 匹配任意字符，判断是否存在匹配的键
+                // hasKeyWithPattern(".ip") -> true
+                // hasKeyWithPattern(".i") -> false
+                hasKeyWithPattern(pattern) {
+                    return getNode(this.root, pattern) !== null;
+                }
+                // 返回 Map 中键值对的数量
+                size() {
+                    return this.size;
+                }
+            }
+    </script>
+</body>
+</html>
