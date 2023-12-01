@@ -65,6 +65,38 @@
                 return null;
             }
 
+            function collectKeys(node, prefix, res) {
+                if (!node) {
+                    return;
+                }
+                if (node.val) {
+                    res.push(prefix);
+                }
+                for (let char in node.children) {
+                    collectKeys(node.children[char], prefix + char, res);
+                }
+            }
+
+            function collectPatternKeys(node, path, prefix, i, res) {
+                if (!node) {
+                    return;
+                }
+                if (prefix.length === i) {
+                    if (node.val) {
+                        res.push(prefix);
+                    }
+                }
+                let c = prefix.charAt(c);
+                if (c === '.') {
+                    for (let char of node.children[c].children) {
+                        collectPatternKeys(node.children[char], path + char, prefix, i + 1, res);
+                    }
+                } else {
+                    collectPatternKeys(node.children[char], path + c, prefix, i + 1, res);
+                }
+
+            }
+
             class TrieMap {
                 // 构造函数
                 constructor() {
@@ -148,21 +180,127 @@
                 }
                 // 搜索前缀为prefix 的健
                 // keysWithPrefix("th") -> ["that", "the", "them"]
-                keysWithPrefix(prefix) { }
+                keysWithPrefix(prefix) {
+                    let res = [];
+                    let node = getNode(this.root, prefix);
+                    collectKeys(node, prefix, res);
+                    return res;
+                }
                 // 判断是和否存在前缀为 prefix 的键
-                hasWithPrefix(prefix) { }
+                hasWithPrefix(prefix) {
+                    return getNode(this.root, prefix) !== null;
+                }
                 // 通配符 . 匹配任意字符，搜索所有匹配的键
                 // keysWithPattern("t.a.") -> ["team", "that"]
-                keysWithPattern(pattern) { }
+                keysWithPattern(pattern) {
+                    let res = [];
+                    collectPatternKeys(this.root, pattern, 0, res);
+                    return res;
+                }
                 // 通配符 . 匹配任意字符，判断是否存在匹配的键
                 // hasKeyWithPattern(".ip") -> true
                 // hasKeyWithPattern(".i") -> false
                 hasKeyWithPattern(pattern) {
-                    return getNode(this.root, pattern) !== null;
+                    return !this.keysWithPattern(pattern).length;
                 }
                 // 返回 Map 中键值对的数量
                 size() {
                     return this.size;
+                }
+            }
+            class Trie {
+                constructor() {
+                    this.root = new TrieNode();
+                }
+                put(words) {
+                    //this.root = put(this.root, words,0)
+                    let node = this.root;
+                    for (let word of words) {
+                        if (!node.children[word]) {
+                            node.children[word] = new TrieNode();
+                        }
+                        node = node.children[word];
+                    }
+                    node.val = true;
+                }
+                romove(words) {
+                    this.onRomove(this.root, words, 0);
+                }
+                onRomove(node, word, i) {
+                    if (!node) {
+                        return null;
+                    }
+                    if (i === word.length) {
+                        node.val === null;
+
+                        if (!Object.keys(node.children).length) {
+                            return null;
+                        }
+                    }
+                    let c = word.charAt(i);
+                    node.children[c] = this.onRomove(node.children[c], word, i + 1);
+
+                    if (!Object.keys(node.children).length && !node.val) {
+                        return null;
+                    }
+                    return node;
+                }
+                getNode(words) {
+                    let node = this.root;
+                    for (let word of words) {
+                        if (!node.children[word]) {
+                            return null;
+                        }
+                        node = node.children[word];
+                    }
+                    return node;
+                }
+                keysWithPrefix(prefix) {
+                    let node = this.getNode(prefix);
+                    let res = [];
+                    this.collectKeys(node, prefix, res);
+                    return res;
+                }
+                /**
+                 * 
+                 * @param {*} pattern 
+                 * t.a. => [that tcae]
+                 */
+                keysWithPattern(pattern) {
+                    let res = [];
+                    this.collectPatternKeys(this.root, '', pattern, 0, res);
+                    return res;
+                }
+                collectPatternKeys(node, path, pattern, i, res) {
+                    if (!node) {
+                        return;
+                    }
+                    if (i === pattern.length) {
+                        if (node.val) {
+                            res.push(path);
+                        }
+                    }
+
+                    let c = pattern.charAt(i);
+                    if (c === '.') {
+                        // this.collectPatternKeys
+                        for (let key in node.children) {
+                            this.collectPatternKeys(node.children[key], path + key, pattern, i + 1, res)
+                        }
+                    } else {
+                        this.collectPatternKeys(node.children[c], path + c, pattern, i + 1, res)
+                    }
+                }
+                collectKeys(node, prefix, res) {
+                    if (!node) {
+                        return;
+                    }
+                    if (node.val) {
+                        res.push(prefix);
+                    }
+                    for (let key in node.children) {
+                        this.collectKeys(node.children[key], prefix + key, res);
+                    }
                 }
             }
     </script>
