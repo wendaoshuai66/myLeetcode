@@ -124,6 +124,7 @@
 
             var coinChange2 = function (coins, amount) {
                 let dp = new Array(amount + 1).fill(amount + 1);
+                dp[0] = 0;
                 for (let i = 0; i < dp.length; i++) {
                     for (let j = 0; j < coins.length; j++) {
                         if (i < coins[j] < 0) continue;
