@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 动态规划解题套路框架
+            // 动态规划一般就是求最值
+            // 思路就是穷举（核心问题）
+
+            // 动态规划三要素： 重叠子问题（备忘录|| DP table） 最优子结构  状态转移方程
+
+            // 辅助状态转移方程思路 明确base case ==》 明确状态 ====》 明确 选择 ===》  定义 dp 数组 函数定义
+
+            // 斐波那契数
+
+            // 根据 题目 即可写出其最简单的代码
+
+
+            function fib(n) {
+                if (n === 1 || n === 2) return 1;
+                return fib(n - 1) + fib(n - 2);
+            }
+            fib(100)
+            // 根据上述 递归树中有很多重复计算，接下需要一个备忘录 减少相应的重复递归
+
+
+            function fib1(n) {
+                let memo = new Array(n + 1).fill(0);
+                function dp(n) {
+                    if (n < 2) return n;
+                    if (memo[n] !== 0) {
+                        return memo[n];
+                    }
+                    memo[n] = fib(n - 1) + fib(n - 2);
+                    return memo[n];
+                }
+                return dp(n)
+            }
+            // 通过备忘录优化 ===》 fib(20) -> fib(19) --> fib(18) .... --> fib(1)---> fib(0)
+
+            // 根据上述添加备忘录 时间复杂度都是o n了 是自顶向下的 那自底向上迭代应该是什么的
+            function fib2(n) {
+                if (n < 2) {
+                    return n;
+                }
+                let dp = new Array(n + 1).fill(0);
+                dp[0] = 0, dp[1] = 1;
+                for (let i = 2; i < dp.length; i++) {
+                    dp[i + 1] = dp[i - 1] + dp[i - 2];
+                }
+                return dp[n];
+            }
+
+            // 更进一步的解法就是 减少空间复杂度
+
+            function fib3(n) {
+                let dp_0 = 0, dp_1 = 1;
+                let dp = 0;
+                for (let i = 2; i <= n; i++) {
+                    // dp[i + 1] = dp[i] + dp[i - 1];
+                    dp = dp_0 + dp_1;
+                    // 滚动
+                    dp_0 = dp_1;
+                    dp_1 = dp;
+                }
+                return dp_1;
+            }
+
+
+            // 零钱兑换 凑零钱问题
+            // 给你 k 种面值的硬币，面值分别为 c1, c2 ... ck，每种硬币的数量无限，
+            // 再给一个总金额 amount，问你最少需要几枚硬币凑出这个金额
+
+            //如果不可能凑出，算法返回 - 1
+            // 输入：coins = [1, 2, 5], amount = 11
+            // 输出：3
+            // 解释：11 = 5 + 5 + 1
+
+            var coinChange = function (coins, amount) {
+                // 函数体
+                function dp(coins, amount) {
+                    if (amount === 0) return 0;
+                    if (amount < 0) return -1;
+                    let res = Infinity;
+                    for (let coin of coins) {
+                        let subProblem = dp(coins, amount - coin);
+                        // 子问题没有无解 跳过
+                        if (subProblem === -1) continue;
+                        res = Math.min(res, subProblem + 1);
+                    }
+                    return res === Infinity ? -1 : res;
+                }
+                return dp(coins, amount);
+            };
+
+            // 添加备忘录
+
+            var coinChange1 = function (coins, amount) {
+                let memo = new Array(amount + 1).fill(-666);
+                // 函数体
+                function dp(coins, amount) {
+                    if (amount === 0) return 0;
+                    if (amount < 0) return -1;
+                    if (memo[amount] !== -666) return memo[amount]
+                    let res = Infinity;
+                    for (let coin of coins) {
+                        let subProblem = dp(coins, amount - coin);
+                        // 等于-1 说明不符合该情况 跳过
+                        if (subProblem === -1) continue;
+
+                        res = Math.min(res, subProblem + 1);
+                    }
+                    memo[amount] = (res === Infinity) ? -1 : res;
+                    return memo[amount];
+                }
+                return dp(coins, amount);
+            };
+
+            // 迭代式 状态转移方程式
+
+            var coinChange2 = function (coins, amount) {
+                let dp = new Array(amount + 1).fill(amount + 1);
+                for (let i = 0; i < dp.length; i++) {
+                    for (let j = 0; j < coins.length; j++) {
+                        if (i < coins[j] < 0) continue;
+                        dp[i] = Math.min(dp[i], dp[i - coins[j]])
+                    }
+                }
+                return dp[amount] === (amount + 1) ? -1 : dp[amount];
+            }
+        
+
+    </script>
+</body>
+</html>
