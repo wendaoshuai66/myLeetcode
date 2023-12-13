@@ -123,15 +123,15 @@
             // 迭代式 状态转移方程式
 
             var coinChange2 = function (coins, amount) {
-                let dp = new Array(amount + 1).fill(amount + 1);
+               let dp = new Array(amount + 1).fill(amount + 1);
                 dp[0] = 0;
                 for (let i = 0; i < dp.length; i++) {
-                    for (let j = 0; j < coins.length; j++) {
-                        if (i < coins[j] < 0) continue;
-                        dp[i] = Math.min(dp[i], dp[i - coins[j]])
+                    for (let coin of coins) {
+                        if (i - coin < 0) continue;
+                        dp[i] = Math.min(dp[i], 1 + dp[i - coin]);
                     }
                 }
-                return dp[amount] === (amount + 1) ? -1 : dp[amount];
+                return (dp[amount] === amount + 1) ? -1 : dp[amount];
             }
         
 
