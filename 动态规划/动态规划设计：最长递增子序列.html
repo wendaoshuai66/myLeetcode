@@ -6,6 +6,42 @@
     <title>Document</title>
 </head>
 <body>
-    
+    <script>
+        //动态规划设计：最长递增子序列
+            // 动态规划通用技巧： 数学归纳思想
+            // 什么是数学归纳思想： 举个例子 证明 k = n ,那么先假设这个结论 k < n 成立 然后推到出 k = n 这个结论成立
+
+            // 那么正确的状态方程式 如何推倒呢 dp[0 ... i-1] 成立 被算出来了 ，然后问自己怎么通过这些结果算出 dp[i]
+
+
+            // 最长递增子序列
+            // 总结这个状态方程设计 就是拿出当前值 跟 比自身下标小的 比 记录到方程式dp[i]中
+            // 还是较简单且经典的动态方程式
+            var lengthOfLIS = function (nums) {
+                let dps = new Array(nums.length).fill(1);
+                for (let i = 0; i < nums.length; i++) {
+                    for (let j = 0; j < i; j++) {
+                        if (nums[i] > nums[j]) {
+                            dps[i] = Math.max(dps[i], dps[j] + 1);
+                        }
+                    }
+                }
+                let res = 0;
+                for (let dp of dps) {
+                    res = Math.max(res, dp);
+                }
+                return res;
+            };
+
+            // 最长递增子序列 还有一种解法 二分法 后期回头再解
+
+            // 拓展到二维
+            // 俄罗斯套娃信封问题
+            // https://leetcode.cn/problems/russian-doll-envelopes/
+
+            var maxEnvelopes = function (envelopes) {
+
+            };
+    </script>
 </body>
 </html>
