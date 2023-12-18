@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 不同的子序列
+        // 该列子是想通过这个题更好的动态规划穷举的两种技巧
+
+        // 站在 t 角度穷举
+        var numDistinct = function (s, t) {
+            // 备忘录
+            const memo = new Array(s.length).fill().map(() => new Array(t.length).fill(-1));
+            function dp(i, j) {
+                if (j === t.length) {
+                    return 1;
+                }
+                if (s.length - i < t.length - j) {
+                    return 0;
+                }
+                if (memo[i][j] !== -1) return memo[i][j];
+                let res = 0;
+                for (let k = i; k < s.length; k++) {
+                    if (s[k] === t[j]) {
+                        res += dp(k + 1, j + 1);
+                    }
+                }
+                memo[i][j] = res;
+                return res;
+            }
+            return dp(0, 0);
+        }
+
+        // 从这道题中感受到了 算法就是把我们生活中的问题 通过代码的方式解决，然后优化更高效， 动态规划就是对其解决问题怎么更高效的优化
+
+        // 站在 s 角度穷举
+
+        function numDistinct1(s, t) {
+            // 备忘录
+            const memo = new Array(s.length).fill().map(() => new Array(t.length).fill(-1));
+
+            function dp(i, j) {
+                if (j === t.length) {
+                    return 1;
+                }
+                if (s.length - i < t.length - j) {
+                    return 0;
+                }
+                if (memo[i][j] !== -1) return memo[i][j];
+                let res = 0;
+                if (s[i] === t[j]) {
+                    res += + dp(i + 1, j + 1) + dp(i + 1, j);
+                } else {
+                    res += dp(i + 1, j);
+                }
+                memo[i][j] = res;
+                return res;
+            }
+
+            return dp(0, 0);
+        }
+    </script>
+</body>
+</html>
