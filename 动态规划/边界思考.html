@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // base case 和备忘录的初始值怎么定
+
+        // 这块主打清晰的二维数组
+
+        // 1.下降路径最小和
+        // 2.最小路径和
+
+        //下降路径最小和
+        // 这个题就是考察二维数组处理 画图很关键 清楚它是怎么走的
+        function minFallingPathSum(matrix) {
+            let res = Infinity;
+            let n = matrix.length;
+            function min(a, b, c) {
+                return Math.min(a, Math.min(b, c))
+            }
+            let memo = new Array(n).fill().map(() => new Array(n).fill(6666));
+            function dp(matrix, i, j) {
+                if (i < 0 || j < 0 || i >= n || j >= n) {
+                    return 9999;
+                }
+                if (i === 0) return matrix[i][j];
+                if (memo[i][j] !== 6666) return memo[i][j];
+                memo[i][j] = matrix[i][j] + min(dp(matrix, i - 1, j), dp(matrix, i - 1, j + 1), dp(matrix, i - 1, j - 1));
+
+                return memo[i][j];
+            }
+            for (let i = 0; i < n; i++) {
+                // 对最后一行不同列路径进行比较
+                res = Math.min(res, dp(matrix, n - 1, i));
+            }
+            return res;
+        }
+
+        // 最小路径和
+
+        // 递归的
+        var minPathSum = function (grid) {
+            let m = grid.length, n = grid[0].length;
+            let memo = new Array(m).fill().map(() => new Array(n).fill(66666));
+
+            function dp(grid, i, j) {
+                if (i < 0 || j < 0 || i >= m || j >= n) {
+                    return 9999;
+                }
+                if (i === 0 && j === 0) {
+                    return grid[i][j];
+                }
+                if (memo[i][j] !== 66666) return memo[i][j];
+                memo[i][j] = grid[i][j] + Math.min(dp(grid, i, j - 1), dp(grid, i - 1, j));
+                return memo[i][j]
+            }
+            return dp(grid, m - 1, n - 1);
+        };
+
+        // 还有迭代方法 后续更新
+    </script>
+</body>
+</html>
