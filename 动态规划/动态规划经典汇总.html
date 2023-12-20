@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 用动态规划玩游戏
+        // 先来经典面试题
+
+        // 高楼扔鸡蛋
+        // 动态规划 明确两个问题
+        // 1 是 什么是状态 2 有什么选择
+        //  状态很明显 拥有的鸡蛋个数 和 需要测试的楼层 随着测试的进行 鸡蛋个数可能变少 楼层范围也缩小 这就是状态的变化
+        // 选择 其实就是选择那个楼层扔鸡蛋 两种 选择 线性或者二分
+        // 明确状态 选择之后 动态规划基本思路就形成了 二维的数组dp 或者带两参数的dp函数 外家for 循环选择最佳最优状态
+
+        // function superEggDrop(k, n) {
+        //     let res = 0;
+        //     for (let i = 0; i <= n; i++) {
+        //         res = min(res, '这次在第i层扔鸡蛋' )
+        //     }
+        //     return res;
+        // }
+        // 以上就是第i层扔鸡蛋 基本思路,但是没有展示出递归 和状态的变化
+        // 分析 第i层扔鸡蛋 两种情况 鸡蛋碎了 鸡蛋没碎 这个就是状态转移===》
+        // 鸡蛋碎了 k-1 搜索楼层区间 从 1---n 变成 1 --- i-1  共 i -1 的楼层
+        // 鸡蛋没碎 鸡蛋个数不变 搜索楼层区间 从 1.. n  变成 i+1... n 共 n -i 层楼
+
+        // 画图很重要 解决算法题
+        // 下面简单写一下这个图怎么画
+        // 1 .....     i      .....  n;
+        // 碎的 k-1 i-1      没碎 k n-i
+
+
+        function superEggDrop(k, n) {
+            let memo = new Array(k + 1).fill().map(() => new Array(n + 1).fill(-666));
+            function dp(k, n) {
+                if (n === 0) return 0;
+                if (k === 1) return n;
+                if (memo[k][n] !== -666) return memo[k][n];
+                let res = Infinity;
+                for (let i = 1; i <= n; i++) {
+                    res = Math.min(res, Math.max(dp(k - 1, i - 1), dp(k, n - i)) + 1);
+                }
+                memo[k][n] = res;
+                return memo[k][n];
+            }
+            return dp(k, n);
+        }
+
+        // 根据上面说法 其实 转化为方程式 能看到可以处理为二分查找这个方向优化 因为you
+
+
+        function superEggDrop1(k, n) {
+            let memo = new Array(k + 1).fill().map(() => new Array(n + 1).fill(-666));
+            function dp(k, n) {
+                if (k === 1) return n;
+                if (n === 0) return 0;
+                if (memo[k][n] !== -666) return memo[k][n];
+                let res = Infinity;
+                let low = 1;
+                let high = n;
+                while (low <= high) {
+                    let mid = low + parseInt((high - low) / 2)
+                    let broken = dp(k - 1, mid - 1);
+                    let nobroken = dp(k, n - mid);
+
+                    if (nobroken < broken) {
+                        high = mid - 1;
+                        res = Math.min(res, broken + 1)
+                    } else {
+                        low = mid + 1;
+                        res = Math.min(res, nobroken + 1);
+                    }
+                }
+                memo[k][n] = res;
+                return memo[k][n];
+            }
+            return dp(k, n);
+        }
+    </script>
+</body>
+</html>
