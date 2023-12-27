@@ -81,6 +81,72 @@
             }
             return dp(k, n);
         }
+
+
+        // 正则表达式
+        // 没有* 的伪代码,只有 .
+
+        // function isMatch(s, p) {
+        //     let i = 0; j = 0;
+        //     while (i < s.length && j < p.length) {
+        //         if (s[i] == p[j] || p[j] == '.') {
+        //             i++;
+        //             j++;
+        //         } else {
+        //             return false;
+        //         }
+        //     }
+        //     return i === j;
+        // }
+        // 当 p[j + 1] 为 * 通配符时 分析
+
+        // function isMatch(s, p) {
+        //     let i = 0, j = 0;
+        //     while (i < s.length && j < p.length) {
+        //         if (s[i] == p[j] || p[j] == '.') {
+        //             if (j < p.length - 1 && p[j + 1] === '*') {
+        //                 // 有 * 通配符，可以匹配 0 次或多次
+        //             } else {
+        //                 // 无 * 通配符，老老实实匹配 1 次
+        //                 i++; j++;
+        //             }
+        //         } else {
+        //             if (j < p.length - 1 && p[j + 1] === '*') {
+        //                 // 有 * 通配符，只能匹配 0 次
+        //             } else {
+        //                 return false;
+        //             }
+        //         }
+        //     }
+        // }
+
+        // 上述伪代码 
+        // 1 s[i] == p[j] || p[j] == '.' 两种情况
+        // 1.1  s = "aaa", p = "a*"  p[j] 可能匹配多个字符 那么p[0] 会匹配三个字符
+        // 1.2  s = "aa", p = "a*aa" p[i] 可能匹配0个字符 由于后面字符可以匹配s 所以p[0] 只能匹配0次 
+
+        // 如果 s[i] != p[j]，只有一种情况：
+
+        // p[j] 只能匹配 0 次，然后看下一个字符是否能和 s[i] 匹配。比如说 s = "aa", p = "b*aa"，此时 p[0] 只能匹配 0 次。
+
+        // function isMatch(s, p) {
+        //     function dp(s, i, p, j) {
+        //         if (s[i] === p[j] || p[j] === '.') {
+        //             if (j < (p.length-1) && p[j + 1] === '*') {
+        //                 return dp(s, i, p, j + 2)
+        //                     || dp(s, i + 1, p, j);
+        //             } else {
+        //                 dp(s, i+1,p,j+1)
+        //             }
+        //         } else {
+        //             if (j < (p.length - 1) && p[j + 1] === '*') {
+        //                 return dp(s, i, p, j + 2);
+        //             } else {
+        //                 return false;
+        //             }
+        //         }
+        //     }
+        // }
     </script>
 </body>
 </html>
