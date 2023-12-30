@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
     <script>
         // 用动态规划玩游戏
         // 先来经典面试题
-
         // 高楼扔鸡蛋
         // 动态规划 明确两个问题
         // 1 是 什么是状态 2 有什么选择
@@ -120,10 +121,10 @@
         //     }
         // }
 
-        // 上述伪代码 
+        // 上述伪代码
         // 1 s[i] == p[j] || p[j] == '.' 两种情况
         // 1.1  s = "aaa", p = "a*"  p[j] 可能匹配多个字符 那么p[0] 会匹配三个字符
-        // 1.2  s = "aa", p = "a*aa" p[i] 可能匹配0个字符 由于后面字符可以匹配s 所以p[0] 只能匹配0次 
+        // 1.2  s = "aa", p = "a*aa" p[i] 可能匹配0个字符 由于后面字符可以匹配s 所以p[0] 只能匹配0次
 
         // 如果 s[i] != p[j]，只有一种情况：
 
@@ -149,4 +150,5 @@
         // }
     </script>
 </body>
+
 </html>
